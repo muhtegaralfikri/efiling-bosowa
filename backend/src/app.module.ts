@@ -61,9 +61,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
           autoLoadEntities: true,
           synchronize: process.env.NODE_ENV !== 'production',
           timezone: 'Z', // Database stores UTC, don't convert
-          // Connection Pool Settings (optimized for ~50 concurrent users)
+          // Connection Pool Settings (optimized for 2GB VPS)
           extra: {
-            connectionLimit: 25,
+            connectionLimit: 10,
             waitForConnections: true,
             queueLimit: 0,
             connectTimeout: 10000,
