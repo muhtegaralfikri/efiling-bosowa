@@ -1,623 +1,359 @@
-# Bosowa OCR - Sistem Manajemen Surat & Invoice Digital
+# Bosowa OCR - Sistem Manajemen Dokumen Digital
 
-Aplikasi web full-stack untuk digitalisasi dan manajemen arsip surat/invoice dengan teknologi OCR (Optical Character Recognition). Dikembangkan untuk **Bosowa Bandar Agency** dalam rangka modernisasi proses administrasi dokumen.
+## Executive Summary
+
+**Bosowa OCR** adalah solusi digitalisasi dokumen perusahaan yang menggabungkan teknologi Optical Character Recognition (OCR) dengan sistem manajemen arsip terintegrasi. Sistem ini dikembangkan untuk mempercepat proses administrasi, mengurangi pekerjaan manual, dan menyediakan pencarian dokumen yang instan.
+
+### Dampak Bisnis
+| Aspek | Sebelum Digitalisasi | Setelah Bosowa OCR |
+|-------|---------------------|--------------------|
+| **Input Data** | Manual ketik 10-15 menit/dokumen | Otomatis dalam hitungan detik |
+| **Pencarian Dokumen** | Cek fisik lemari arsip | Pencarian instan dengan filter |
+| **Tanda Tangan** | Print → TTD → Scan | Digital signature langsung di sistem |
+| **Audit Trail** | Tidak terdokumentasi | Semua perubahan tercatat otomatis |
+| **Akses** | Terbatas di kantor | Akses dimanapun (web-based) |
+
+---
+
+## Tentang Sistem
+
+### Apa itu Bosowa OCR?
+
+Bosowa OCR adalah aplikasi web yang memungkinkan perusahaan untuk:
+
+1. **Upload Dokumen** - Unggah surat/invoice dalam format PDF atau gambar
+2. **Ekstraksi Otomatis** - Sistem membaca dan mengambil data dari dokumen secara otomatis
+3. **Simpan & Kelola** - Semua dokumen tersimpan secara digital dan terorganisir
+4. **Tanda Tangan Digital** - Proses approval dan tanda tangan tanpa kertas
+5. **Pencarian Cepat** - Temukan dokumen apa saja dalam hitungan detik
+
+### Mengapa Dibutuhkan?
+
+Proses administrasi konvensional memiliki beberapa tantangan:
+- Data entry manual yang memakan waktu
+- Risiko kesalahan ketik (human error)
+- Dokumen fisik mudah hilang/rusak
+- Pencarian dokumen sulit dan lambat
+- Proses tanda tangan memerlukan cetak dan scan
+
+Bosowa OCR hadir untuk menyelesaikan seluruh permasalahan tersebut.
+
+---
 
 ## Fitur Utama
 
-### 1. OCR Cerdas dengan Multi-Engine Support
-- **Tesseract OCR** - Engine utama dengan preprocessing gambar FFmpeg
-- **Google Vision AI** - Cloud-based OCR untuk accuracy improvement
-- **AI-Powered Extraction** - Groq AI untuk parsing data terstruktur
-- **Gemini AI Integration** - Advanced text understanding dan classification
-- **Preprocessing Otomatis** - Optimasi kontras, ketajaman, dan konversi PDF ke gambar
+### 1. OCR Cerdas - Data Entry Otomatis
 
-### 2. Manajemen Dokumen Komprehensif
-- **Multi-format Support** - PDF, JPG, PNG, dan format gambar lainnya
-- **Drag & Drop Upload** - Interface intuitif untuk upload batch
-- **Camera Integration** - Capture langsung dari kamera device (mobile-friendly)
-- **Manual Cropping** - Fokus area kop surat dengan precision tool
-- **File Processing** - Konversi PDF ke gambar, kompresi, dan optimasi otomatis
+Sistem menggunakan teknologi AI untuk membaca dokumen dan mengambil informasi penting secara otomatis:
 
-### 3. Role-Based Access Control (RBAC)
-| Role | Akses | Unit Bisnis |
-|------|-------|-------------|
-| **ADMIN** | Full access: statistik, kelola user, audit log, approve/reject hapus | Semua Unit |
-| **MANAJEMEN** | Upload, lihat daftar surat, tanda tangan digital, ajukan hapus | Semua Unit |
-| **USER** | Upload, lihat daftar surat, ajukan hapus, request signature | Sesuai Unit |
+| Data yang Diekstrak | Contoh |
+|---------------------|--------|
+| Nomor Surat | "001/INV/XT/2024" |
+| Tanggal Dokumen | "15 Januari 2024" |
+| Nama Pengirim | "PT. Bosowa Taxi" |
+| Alamat & Kontak | "Jl. Pettarani No. 10, 0812-3456-7890" |
+| Perihal | "Penawaran Jasa" |
+| Total Nominal | "Rp 5.000.000" |
 
-#### Unit Bisnis Support
-- **BOSOWA_TAXI** - Taksi dan transportasi
-- **OTORENTAL_NUSANTARA** - Rental mobil
-- **OTO_GARAGE_INDONESIA** - Bengkel dan service otomotif
-- **MALLOMO** - Pengiriman dan logistics
-- **LAGALIGO_LOGISTIK** - Jasa pengiriman barang
-- **PORT_MANAGEMENT** - Manajemen pelabuhan
+**Keuntungan:** Tidak perlu ketik manual. User cukup upload dan sistem akan mengisi data otomatis.
 
-#### Detail Tugas Per Role
+### 2. Manajemen Dokumen Terpusat
 
-##### ADMIN
-| Fitur | Akses | Keterangan |
-|-------|:-----:|------------|
-| Upload & OCR | ✅ | Scan/foto dokumen, proses OCR |
-| Lihat daftar surat | ✅ | Melihat semua surat/invoice |
-| Input metadata | ✅ | Isi/koreksi hasil OCR |
-| Edit surat | ✅ | Perbaiki data yang salah |
-| Ajukan hapus | ✅ | Request penghapusan dokumen |
-| **Dashboard statistik** | ✅ | Grafik surat per bulan, statistik koreksi |
-| **Kelola user** | ✅ | Tambah/edit/hapus user |
-| **Approve/reject hapus** | ✅ | Setujui atau tolak permintaan hapus |
-| **Lihat audit log** | ✅ | Riwayat semua perubahan data |
-| **File cleanup** | ✅ | Bersihkan file orphan |
+Semua dokumen perusahaan tersimpan dalam satu sistem terintegrasi:
 
-##### MANAJEMEN
-| Fitur | Akses | Keterangan |
-|-------|:-----:|------------|
-| Upload & OCR | ✅ | Scan/foto dokumen, proses OCR |
-| Lihat daftar surat | ✅ | Melihat semua surat/invoice |
-| Input metadata | ✅ | Isi/koreksi hasil OCR |
-| Edit surat | ✅ | Perbaiki data yang salah |
-| Ajukan hapus | ✅ | Request penghapusan (perlu approval admin) |
-| **Tanda Tangan Digital** | ✅ | Request dan approve tanda tangan dokumen |
-| **Dashboard TTD** | ✅ | Monitoring pending signatures |
-| **Manajemen TTD** | ✅ | Upload/gambar tanda tangan |
-| Dashboard statistik | ❌ | - |
-| Kelola user | ❌ | - |
-| Approve/reject hapus | ❌ | - |
-| Lihat audit log | ❌ | - |
+- **Multi-format Support** - PDF, JPG, PNG
+- **Drag & Drop Upload** - Upload dokumen dengan mudah
+- **Camera Integration** - Foto langsung dari HP/kamera
+- **Organisasi Otomatis** - Dokumen dikelompokkan berdasarkan:
+  - Jenis (Surat Masuk / Surat Keluar)
+  - Kategori (Surat / Invoice / Memo / PAD)
+  - Unit Bisnis
+  - Tanggal
 
-##### USER
-| Fitur | Akses | Keterangan |
-|-------|:-----:|------------|
-| Upload & OCR | ✅ | Scan/foto dokumen, proses OCR |
-| Lihat daftar surat | ✅ | Melihat semua surat/invoice |
-| Input metadata | ✅ | Isi/koreksi hasil OCR |
-| Edit surat | ✅ | Perbaiki data yang salah |
-| Ajukan hapus | ✅ | Request penghapusan (perlu approval admin) |
-| Request TTD | ✅ | Ajukan permintaan tanda tangan ke manajemen |
-| Dashboard statistik | ❌ | - |
-| Kelola user | ❌ | - |
-| Approve/reject hapus | ❌ | - |
-| Lihat audit log | ❌ | - |
-| Tanda Tangan Digital | ❌ | Hanya manajemen yang bisa ttd |
+### 3. Tanda Tangan Digital
 
-### 4. Tanda Tangan Digital Lengkap
-- **Request Signature** - User bisa minta tanda tangan ke manajemen dengan tag system
-- **Digital Signature Pad** - Canvas untuk gambar tanda tangan langsung di browser
-- **Signature Upload** - Upload gambar tanda tangan dari file
-- **Drag & Drop Positioning** - Posisi presisi tanda tangan di dokumen PDF
-- **Multi-signer Workflow** - Support multiple signers dalam satu dokumen
-- **Approval System** - Manajemen approve/reject dengan notes
-- **PDF Embedding** - Otomatis embed tanda tangan ke dokumen PDF menggunakan pdf-lib
-- **Real-time Notifications** - Notifikasi instant untuk pending signatures
-- **Audit Trail Complete** - Log detail: waktu, IP, device, signature placement
-- **Document Locking** - Dokumen yang ditandatangani tidak bisa di-edit
+Sistem menyediakan fitur tanda tangan digital untuk mempercepat proses approval:
 
-### 5. Sistem Notifikasi Real-time
-- **Push Notifications** - Real-time alerts untuk signature requests
-- **Notification Center** - Centralized notification system dengan read/unread status
-- **Multi-channel Alerts** - In-app notification bell, email integration ready
-- **Notification Types** - Signature request, completed, rejected, document updates
+- Request tanda tangan langsung dari sistem
+- Posisi tanda tangan dapat diatur (koordinat X, Y, halaman)
+- Tanda tangan otomatis tertempel di dokumen PDF
+- History tanda tangan terdokumentasi lengkap
 
-### 6. Audit Trail & Analytics
-- **Comprehensive Edit Logs** - Riwayat lengkap perubahan dengan before/after values
-- **Delete Request Workflow** - Multi-level approval untuk penghapusan dokumen
-- **Advanced Analytics Dashboard** - Grafik komprehensif: surat per bulan, user statistics, unit bisnis performance
-- **Performance Metrics** - OCR accuracy rates, processing times, user activity
+### 4. Role-Based Access Control
 
-## Tech Stack
+Akses pengguna dikelola berdasarkan peran:
 
-### Backend
-| Teknologi | Versi | Fungsi |
-|-----------|-------|--------|
-| NestJS | 11.0.1 | Framework backend modular dengan dependency injection |
-| TypeORM | 0.3.20 | ORM untuk MySQL dengan connection pooling |
-| Passport + JWT | 0.7.0+11.0.0 | Autentikasi stateless dengan refresh token |
-| Tesseract OCR | 3.05+ | Engine pengenalan teks lokal |
-| Google Vision AI | 5.3.4 | Cloud-based OCR untuk accuracy improvement |
-| Groq AI SDK | 0.37.0 | AI-powered text extraction dan parsing |
-| Gemini AI | 0.24.1 | Advanced text understanding dan classification |
-| FFmpeg | 8.0 | Preprocessing gambar dan konversi PDF |
-| PDF-lib | 1.17.1 | Manipulasi PDF untuk signature embedding |
-| Sharp | 0.34.5 | Image processing dan compression |
-| Winston | 3.18.3 | Structured logging dengan file rotation |
-| Class Validator | 0.14.1 | Validasi DTO dengan custom messages |
-| Swagger | 11.2.3 | Dokumentasi API otomatis |
-| Helmet | 8.1.0 | Security headers dan XSS protection |
-| Throttler | 6.5.0 | Rate limiting dan DoS protection |
+| Role | Deskripsi | Akses |
+|------|-----------|-------|
+| **Administrator** | Pengelola sistem | Akses penuh, kelola user, laporan statistik, approve hapus dokumen |
+| **Manajemen** | Pimpinan unit | Lihat semua dokumen, tanda tangan digital, dashboard approval |
+| **User** | Staff administrasi | Upload dokumen, lihat dokumen unitnya, request tanda tangan |
 
-### Frontend
-| Teknologi | Versi | Fungsi |
-|-----------|-------|--------|
-| React | 19.2.1 | UI Library dengan concurrent features |
-| TypeScript | 5.9.3 | Type safety dan better DX |
-| Vite | 7.2.4 | Build tool & dev server dengan HMR |
-| TanStack Query | 5.90.11 | Server state management & intelligent caching |
-| React Router | 7.1.3 | Client-side routing dengan lazy loading |
-| Lucide React | 0.555.0 | Modern icon library |
-| Sonner | 2.0.7 | Toast notifications yang smooth |
-| Axios | 1.7.9 | HTTP client dengan interceptors |
+### 5. Audit Trail & Pelaporan
 
-### Infrastructure
-| Teknologi | Versi | Fungsi |
-|-----------|-------|--------|
-| MySQL | 8+ | Database relasional dengan indexing |
-| PM2 | Latest | Process manager production dengan clustering |
-| Multer | 1.4.5-lts.1 | File upload handling dengan validation |
-| Node.js | 18+ | Runtime environment |
+Setiap aktivitas tercatat untuk kebutuhan audit:
 
-## Arsitektur
+- Riwayat perubahan data (sebelum-sesudah)
+- Log upload dan hapus dokumen
+- History tanda tangan
+- Dashboard statistik dokumen per bulan
+
+### 6. Notifikasi Real-time
+
+User mendapatkan notifikasi langsung untuk:
+- Permintaan tanda tangan baru
+- Dokumen yang sudah ditandatangani
+- Update dokumen
+
+---
+
+## Unit Bisnis yang Didukung
+
+Sistem mendukung multiple unit bisnis dalam satu aplikasi:
+
+- **BOSOWA TAXI** - Operasional taksi
+- **OTORENTAL NUSANTARA** - Rental mobil
+- **OTO GARAGE INDONESIA** - Bengkel & service
+- **MALLOMO** - Logistik
+- **LAGALIGO LOGISTIK** - Jasa pengiriman
+- **PORT MANAGEMENT** - Manajemen pelabuhan
+- Dan lainnya sesuai kebutuhan
+
+---
+
+## Alur Kerja Sistem
+
+### Proses Upload Dokumen
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      Frontend (React)                       │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
-│  │ Upload  │ │ Letters │ │  Stats  │ │  Users  │           │
-│  │  Page   │ │  List   │ │Dashboard│ │ Manage  │           │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘           │
-│       └───────────┴───────────┴───────────┘                 │
-│                         │ Axios + React Query               │
-└─────────────────────────┼───────────────────────────────────┘
-                          │ REST API (JWT Auth)
-┌─────────────────────────┼───────────────────────────────────┐
-│                    Backend (NestJS)                         │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
-│  │  Auth   │ │ Letters │ │  Files  │ │  OCR    │           │
-│  │ Module  │ │ Module  │ │ Module  │ │ Service │           │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘           │
-│       │           │           │           │                 │
-│  ┌────┴───────────┴───────────┴───────────┴────┐           │
-│  │              TypeORM + MySQL                 │           │
-│  └──────────────────────────────────────────────┘           │
-└─────────────────────────────────────────────────────────────┘
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-   ┌────▼────┐      ┌─────▼─────┐     ┌─────▼─────┐
-   │ MySQL   │      │ Tesseract │     │  FFmpeg   │
-   │   DB    │      │    OCR    │     │ Preproc   │
-   └─────────┘      └───────────┘     └───────────┘
+1. User Login → Pilih Menu Upload
+                    ↓
+2. Pilih File (PDF/Gambar) atau Foto Dokumen
+                    ↓
+3. Sistem Proses OCR → Ekstrak Data Otomatis
+                    ↓
+4. User Review → Edit (jika perlu) → Simpan
+                    ↓
+5. Dokumen Tersimpan di Database
 ```
 
-## Database Schema
+### Proses Tanda Tangan Digital
 
+```
+1. User Request Tanda Tangan → Pilih Manajemen
+                                    ↓
+2. Sistem Kirim Notifikasi ke Manajemen
+                                    ↓
+3. Manajemen Buka Dashboard → Lihat Request
+                                    ↓
+4. Manajemen Review → Set Posisi TTD → Approve
+                                    ↓
+5. TTD Otomatis Tertempel di PDF → Dokumen Siap
+```
+
+---
+
+## Teknologi (Overview)
+
+### Frontend - Antarmuka Pengguna
+| Teknologi | Fungsi |
+|-----------|--------|
+| React | Framework pembuatan tampilan modern |
+| Vite | Tool untuk mempercepat loading aplikasi |
+| React Router | Navigasi antar halaman |
+| Lucide Icons | Ikon yang modern dan konsisten |
+
+### Backend - Sistem Server
+| Teknologi | Fungsi |
+|-----------|--------|
+| NestJS | Framework backend yang aman dan scalable |
+| TypeORM | Pengelola database |
+| MySQL | Database penyimpanan data |
+| Google Cloud Vision | Teknologi OCR untuk membaca teks |
+| Groq AI | Kecerdasan buatan untuk ekstraksi data |
+| BullMQ + Redis | Pemrosesan dokumen di background |
+
+### Security - Keamanan
+| Fitur | Keterangan |
+|-------|------------|
+| Enkripsi Password | Password diamankan dengan bcrypt |
+| JWT Authentication | Token session yang aman |
+| Role-Based Access | Akses sesuai peran user |
+| Audit Logging | Semua aktivitas tercatat |
+| Input Validation | Validasi data untuk mencegah error |
+| Rate Limiting | Proteksi dari spam/serangan |
+
+---
+
+## Keunggulan Sistem
+
+### 1. Efisiensi Waktu
+- Input data otomatis menghemat waktu hingga 80%
+- Pencarian dokumen instan
+- Tanda tangan tanpa proses cetak-scan
+
+### 2. Akurasi Data
+- Mengurangi human error dalam entry data
+- Validasi otomatis sebelum simpan
+- Riwayat perubahan terdokumentasi
+
+### 3. Penghematan Biaya
+- Mengurangi penggunaan kertas
+- Mengurangi biaya penyimpanan fisik
+- Mengurangi biaya pengiriman dokumen
+
+### 4. Akses Mudah
+- Web-based, bisa diakses dari mana saja
+- Mendukung desktop dan mobile
+- Multi-user dengan role berbeda
+
+### 5. Keamanan Terjamin
+- Enkripsi data
+- Kontrol akses berbasis peran
+- Audit trail lengkap
+
+---
+
+## Instalasi & Penggunaan
+
+### Persyaratan Sistem
+
+**Hardware:**
+- CPU: Dual core atau lebih
+- RAM: Minimal 4 GB (rekomendasi 8 GB)
+- Storage: 20 GB free space
+
+**Software:**
+- Node.js 18+
+- MySQL 8+
+- Redis 6+ (untuk background processing)
+
+### Langkah Instalasi
+
+#### 1. Persiapkan Database
 ```sql
--- Core Tables
-letters              -- Dokumen surat/invoice dengan multi-unit bisnis
-users                -- User dengan role dan unit bisnis assignment
-files                -- Metadata file upload dengan processing info
-edit_logs            -- Audit trail lengkap perubahan
-delete_requests      -- Workflow approval penghapusan
-signature_requests   -- Permintaan tanda tangan dengan positioning
-signatures           -- Data tanda tangan user (gambar/default)
-notifications        -- Notifikasi sistem dengan read status
+CREATE DATABASE db_name;
 ```
 
-### Entity: Letter (Enhanced)
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| letterNumber | VARCHAR | Nomor surat unik dengan indexing |
-| jenisSurat | ENUM | MASUK / KELUAR |
-| jenisDokumen | ENUM | SURAT / INVOICE / INTERNAL_MEMO / PAD |
-| unitBisnis | ENUM | BOSOWA_TAXI / OTORENTAL_NUSANTARA / OTO_GARAGE_INDONESIA / MALLOMO / LAGALIGO_LOGISTIK / PORT_MANAGEMENT |
-| tanggalSurat | VARCHAR | Format YYYY-MM-DD |
-| namaPengirim | VARCHAR | Nama pengirim/perusahaan |
-| alamatPengirim | VARCHAR | Alamat lengkap pengirim |
-| teleponPengirim | VARCHAR | Nomor telepon pengirim |
-| perihal | VARCHAR | Subjek surat |
-| totalNominal | FLOAT | Total nilai (untuk invoice) |
-| nominalList | JSON | List breakdown nominal |
-| fileId | VARCHAR | Foreign key ke files |
-| fileUrl | VARCHAR | URL file lampiran |
-
-### Entity: User (Enhanced)
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| username | VARCHAR | Unique username |
-| password | VARCHAR | Bcrypt hashed password |
-| role | ENUM | ADMIN / MANAJEMEN / USER |
-| unitBisnis | ENUM | Assignment ke unit bisnis (nullable untuk ADMIN) |
-| refreshToken | VARCHAR | JWT refresh token |
-| createdAt | DATETIME | Timestamp pembuatan |
-
-### Entity: Signature
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| userId | UUID | Foreign key ke users |
-| imagePath | VARCHAR | Path file gambar tanda tangan |
-| isDefault | BOOLEAN | Signature default user |
-| createdAt | DATETIME | Timestamp pembuatan |
-
-### Entity: SignatureRequest
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| letterId | UUID | Foreign key ke letters |
-| requestedBy | UUID | User yang request (sekretaris/USER) |
-| assignedTo | UUID | User yang harus tanda tangan (MANAJEMEN) |
-| status | ENUM | PENDING / SIGNED / REJECTED |
-| positionX | FLOAT | Posisi X tanda tangan di dokumen |
-| positionY | FLOAT | Posisi Y tanda tangan di dokumen |
-| positionPage | INT | Halaman untuk tanda tangan |
-| signedAt | DATETIME | Timestamp penandatanganan |
-| signedImagePath | VARCHAR | Path dokumen yang sudah ditandatangani |
-| notes | TEXT | Catatan reject/approval |
-| createdAt | DATETIME | Timestamp pembuatan |
-
-### Entity: Notification
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| userId | UUID | Foreign key ke users |
-| type | ENUM | SIGNATURE_REQUEST / SIGNATURE_COMPLETED / SIGNATURE_REJECTED |
-| title | VARCHAR | Judul notifikasi |
-| message | TEXT | Pesan detail |
-| referenceId | UUID | ID referensi (letter/signature request) |
-| isRead | BOOLEAN | Status baca |
-| createdAt | DATETIME | Timestamp pembuatan |
-
-## Keamanan
-
-- **JWT Authentication** - Token-based stateless auth dengan refresh token rotation
-- **Password Hashing** - bcrypt dengan salt rounds (12 rounds)
-- **Role Guards** - Proteksi endpoint berdasarkan role dan unit bisnis
-- **Input Validation** - Class-validator untuk semua DTO dengan custom messages
-- **Rate Limiting** - Multi-tier throttling (short: 3/sec, medium: 20/10sec, long: 100/min)
-- **CORS Configuration** - Strict whitelist origin dengan preflight caching
-- **Security Headers** - Helmet untuk XSS, clickjacking, dan content-type protection
-- **File Upload Validation** - MIME type checking, magic bytes verification, size limits
-- **SQL Injection Prevention** - TypeORM parameterized queries
-- **Audit Logging** - Winston structured logging dengan sensitive data filtering
-
-## Instalasi
-
-### Prerequisites
-- Node.js 18+ (dengan npm)
-- MySQL 8+ (dengan MySQL Workbench atau CLI)
-- Redis 6+ (required untuk OCR background jobs)
-- Tesseract OCR 3.05+ (`tesseract-ocr` + `tesseract-ocr-ind`)
-- FFmpeg 8.0+ (untuk image preprocessing)
-- Google Cloud Vision API credentials (optional, untuk enhanced OCR)
-- Groq AI API key (optional, untuk AI-powered extraction)
-- Gemini AI API key (optional, untuk advanced text understanding)
-
-### Backend Setup
+#### 2. Install Backend
 ```bash
 cd backend
-cp .env.example .env
-# Edit .env dengan konfigurasi database dan API keys
-
 npm install
-# Install global dependencies jika belum ada:
-npm install -g @nestjs/cli
-npm install -g typescript
-npm install -g ts-node
-
-# Build dan seeding
-npm run build
-npm run seed        # Buat user default (ADMIN, MANAJEMEN, USER)
-
-# Jalankan development server
+cp .env.example .env
+# Edit konfigurasi database di file .env
+npm run seed     # Buat user default
 npm run start:dev
-
-# Atau production mode
-npm run start:prod
 ```
 
-### Frontend Setup
+#### 3. Install Frontend
 ```bash
 cd frontend
-cp .env.example .env
-# Edit VITE_API_URL pointing ke backend
-
 npm install
-# Install global dependencies jika belum ada:
-npm install -g vite
-npm install -g typescript
-
-# Development server dengan hot reload
+cp .env.example .env
+# Edit URL backend di file .env
 npm run dev
-
-# Build untuk production
-npm run build
-npm run preview
 ```
 
-### Environment Variables
+#### 4. Akses Aplikasi
+Buka browser: `http://localhost:5173`
 
-**Backend (.env)**
-```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=bosowa_ocr
+---
 
-# Background Jobs (OCR Queue)
-REDIS_URL=redis://localhost:6379
-OCR_WORKER_ENABLED=true
-OCR_WORKER_CONCURRENCY=1
+## Struktur Organisasi Data
 
-# JWT Configuration
-JWT_SECRET=your-super-secure-secret-key-minimum-32-characters
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your-refresh-secret-minimum-32-characters
-JWT_REFRESH_EXPIRES_IN=7d
+### Jenis Surat
+- **SURAT MASUK** - Dokumen yang diterima dari eksternal
+- **SURAT KELUAR** - Dokumen yang dikirim ke eksternal
 
-# OCR & AI Services (Optional but Recommended)
-GOOGLE_CLOUD_VISION_CREDENTIALS_PATH=./credentials/gcp-vision.json
-GROQ_API_KEY=your-groq-api-key
-GEMINI_API_KEY=your-gemini-api-key
+### Kategori Dokumen
+- **SURAT** - Surat biasa
+- **INVOICE** - Invoice/faktur/tagihan
+- **INTERNAL MEMO** - Memo internal
+- **PAD** - Dokumen jenis lain
 
-# File Storage
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=10485760  # 10MB in bytes
+---
 
-# Application Configuration
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
+## API Documentation
+
+API documentation tersedia secara otomatis melalui Swagger:
+
+```
+Development: http://localhost:3000/docs
+Production: https://your-domain.com/docs
 ```
 
-**Frontend (.env)**
-```env
-VITE_API_URL=http://localhost:3000
-VITE_API_VERSION=v1
-VITE_APP_NAME=Bosowa OCR
-VITE_MAX_FILE_SIZE=10485760  # 10MB
-```
+---
 
-### Database Setup
-```sql
--- Buat database baru
-CREATE DATABASE bosowa_ocr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+## Dashboard Statistik
 
--- Buat user untuk aplikasi (optional, lebih secure)
-CREATE USER 'bosowa_ocr'@'localhost' IDENTIFIED BY 'secure_password';
-GRANT ALL PRIVILEGES ON bosowa_ocr.* TO 'bosowa_ocr'@'localhost';
-FLUSH PRIVILEGES;
-```
+Administrator memiliki akses ke dashboard dengan informasi:
 
-## API Endpoints
+- Total dokumen per unit bisnis
+- Grafik dokumen per bulan
+- Statistik koreksi data (indikasi kualitas OCR)
+- User activity logs
+- Storage usage
 
-### Auth & Users
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | /auth/login | - | Login user |
-| GET | /users | Admin | List users |
-| POST | /users | Admin | Buat user |
+---
 
-### Letters & OCR
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /letters | JWT | List surat (paginated) |
-| POST | /letters | JWT | Buat surat baru |
-| GET | /letters/:id | JWT | Detail surat |
-| PATCH | /letters/:id | JWT | Update surat |
-| POST | /letters/ocr-preview | JWT | OCR preview |
-| POST | /files/upload | JWT | Upload file |
+## Keamanan & Compliance
 
-### Tanda Tangan Digital
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /signature-requests | JWT | List permintaan ttd |
-| POST | /signature-requests | JWT | Buat permintaan ttd |
-| GET | /signature-requests/pending | JWT | Pending signatures |
-| PUT | /signature-requests/:id/sign | JWT | Sign dokumen |
-| PUT | /signature-requests/:id/reject | JWT | Reject permintaan |
-| GET | /signatures | JWT | List ttd user |
-| POST | /signatures | JWT | Upload ttd |
-| DELETE | /signatures/:id | JWT | Hapus ttd |
+### Data Protection
+- Password di-hash menggunakan bcrypt
+- Data transmisi menggunakan HTTPS (production)
+- Validasi input di sisi client dan server
+- SQL injection prevention dengan parameterized queries
 
-### Admin & Audit
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /stats/overview | Admin | Dashboard statistik |
-| GET | /edit-logs | Admin | Audit log |
-| POST | /delete-requests | JWT | Ajukan hapus |
-| PATCH | /delete-requests/:id | Admin | Approve/reject |
+### Access Control
+- Role-based access control (RBAC)
+- Unit bisnis isolation
+- Session management dengan JWT
+- Audit trail untuk semua aktivitas
 
-## OCR Parser Details
+### Backup & Recovery
+- Database backup otomatis
+- File cleanup untuk orphan files
+- Restore capabilities
 
-### Algoritma Ekstraksi Nomor Surat
-1. Fuzzy keyword matching ("Nomor", "No", "Invoice No")
-2. Pattern matching untuk format umum:
-   - `XXX/YYY/ZZZ/2024`
-   - `INV-2024-001`
-   - `B-123/ABC/2024`
-3. Scoring berdasarkan kompleksitas dan panjang
-4. Filter false positive (nomor telepon, tanggal)
+---
 
-### Confidence Scoring
-```
-Letter Number : 25 points (if found)
-Tanggal       : 20 points (if valid date)
-Nama Pengirim : 5-25 points (based on source confidence)
-Perihal       : 15 points (if found)
-Text Quality  : 5-15 points (based on alphanumeric ratio)
+## Troubleshooting
 
-Total >= 70 : HIGH confidence
-Total >= 40 : MEDIUM confidence
-Total < 40  : LOW confidence
-```
+### Masalah Umum
 
-## Responsive Design
-
-Aplikasi dioptimasi untuk:
-- Desktop (sidebar navigation)
-- Tablet (collapsed sidebar)
-- Mobile (bottom navigation bar)
-
-## Scripts
-
-### Backend
-```bash
-npm run start:dev   # Development dengan hot reload
-npm run build       # Build production
-npm run start:prod  # Run production
-npm run seed        # Seed database
-npm run lint        # ESLint check
-npm run test        # Unit tests
-```
-
-### Frontend
-```bash
-npm run dev         # Development server
-npm run build       # Build production
-npm run preview     # Preview production build
-npm run lint        # ESLint check
-```
-
-## Status Optimasi
-
-### KEAMANAN
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| JWT Token Expiry | ✅ | 12 jam expiry |
-| Rate Limit Login | ✅ | 5 req/60 detik |
-| File Upload Validation | ✅ | MIME + magic bytes |
-| Password Hashing | ✅ | bcrypt |
-| Role Guards | ✅ | RBAC |
-| Input Validation | ✅ | class-validator |
-| Helmet Security Headers | ✅ | XSS, clickjacking |
-| CORS Strict Mode | ✅ | Whitelist origins |
-| Refresh Token | ✅ | Access 15m + Refresh 7d |
-| HTTPS Enforcement | ⬜ | Server config |
-
-### PERFORMA
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| Database Indexing | ✅ | 3 composite indexes |
-| Frontend Code Splitting | ✅ | Lazy load pages |
-| Backend Pagination | ✅ | findAndCount |
-| React Query Caching | ✅ | TanStack Query |
-| Gzip Compression | ✅ | Response compression |
-| Image Compression | ✅ | Sharp resize/compress |
-| Database Connection Pool | ✅ | 10 connections |
-| OCR Background Job | ⬜ | Bull Queue |
-| Redis Caching | ⬜ | Cache layer |
-
-### RELIABILITAS
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| Health Check Endpoint | ✅ | /health + DB latency |
-| Global Error Handler | ✅ | Axios interceptor |
-| Toast Notifications | ✅ | Sonner |
-| Graceful Shutdown | ✅ | enableShutdownHooks |
-| Structured Logging | ✅ | Winston + file logging |
-| Error Monitoring | ⬜ | Sentry |
-| Database Backup | ✅ | npm run backup/restore |
-| File Cleanup Cron | ✅ | npm run cleanup |
-
-### CODE QUALITY
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| TypeScript Strict | ✅ | Strict mode |
-| ESLint + Prettier | ✅ | Configured |
-| Swagger Docs | ✅ | /docs endpoint |
-| Unit Tests OCR Parser | ✅ | spec.ts |
-| Unit Tests Signature | ✅ | signature-requests.spec.ts |
-| API Versioning | ✅ | /api/v1/ prefix |
-| DTO Custom Messages | ✅ | Bahasa Indonesia |
-| E2E Tests | ⬜ | Integration tests |
-| Code Comments | ⬜ | JSDoc |
-
-### UX IMPROVEMENTS
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| Loading States | ✅ | Spinner + skeleton |
-| Mobile Responsive | ✅ | Bottom nav |
-| Icon Consistency | ✅ | Lucide React |
-| Form Modal Styling | ✅ | Clean design |
-| Skeleton Loaders | ✅ | Shimmer effect |
-| Offline Indicator | ✅ | Banner offline |
-| Form Autosave | ✅ | localStorage draft |
-| **Signature Drag-Drop** | ✅ | Positioning tanda tangan |
-| **Real-time Notifications** | ✅ | Pending signature alerts |
-| Keyboard Shortcuts | ⬜ | Power user |
-| Dark Mode | ⬜ | Theme toggle |
-| PWA Support | ⬜ | Installable app |
-
-### SCALABILITY (Future)
-
-| Item | Status | Keterangan |
-|------|--------|------------|
-| S3/MinIO Storage | ⬜ | Interface ready |
-| Elasticsearch | ⬜ | Full-text search |
-| CDN Integration | ⬜ | Static files |
-| Horizontal Scaling | ⬜ | Stateless ready |
-| Microservices OCR | ⬜ | Separate service |
-
-### Ringkasan Progress
-
-| Kategori | ✅ Selesai | ⬜ Belum |
-|----------|-----------|----------|
-| Keamanan | 9 | 1 |
-| Performa | 7 | 2 |
-| Reliabilitas | 7 | 1 |
-| Code Quality | 7 | 1 |
-| UX | 9 | 1 |
-| Scalability | 0 | 5 |
-| **Total** | **39** | **11** |
-
-**Progress: 78% selesai**
-
-### Update Terakhir
-
-#### ✅ **Core System Implementation (100% Complete)**
-- **User Management System** - Complete CRUD operations dengan role-based access
-- **Authentication & Authorization** - JWT dengan refresh token rotation dan role guards
-- **Document Upload Pipeline** - Multi-format support dengan preprocessing otomatis
-- **Core Application Layout** - Responsive design dengan navigation dan state management
-
-#### ✅ **Advanced OCR Features (100% Complete)**
-- **Multi-Engine OCR** - Tesseract + Google Vision AI + Groq AI + Gemini AI integration
-- **AI-Powered Extraction** - Intelligent parsing dengan confidence scoring
-- **Preprocessing Pipeline** - FFmpeg + Sharp untuk optimal OCR results
-- **PDF Conversion** - Otomatis konversi PDF ke gambar untuk processing
-
-#### ✅ **Digital Signature Workflow (100% Complete)**
-- **Signature Management** - Upload, canvas drawing, default selection
-- **Request & Approval System** - Complete workflow dengan positioning support
-- **PDF Embedding** - Automatic signature embedding dengan pdf-lib
-- **Multi-signer Support** - Parallel dan sequential signing workflows
-
-#### ✅ **Notification & Audit System (100% Complete)**
-- **Real-time Notifications** - In-app alerts dengan read/unread status
-- **Comprehensive Audit Trail** - Detailed logging dengan before/after values
-- **Delete Request Workflow** - Multi-level approval system
-- **Advanced Analytics** - Performance metrics dan user statistics
-
-#### 🔧 **Technical Enhancements**
-- **Database Optimization** - Composite indexes dan query optimization
-- **Security Hardening** - Multi-tier rate limiting dan input validation
-- **Performance Monitoring** - Winston logging dengan structured output
-- **Error Handling** - Global exception handlers dengan user-friendly messages
-
-#### 📊 **Current Project Status**
-- **Backend**: 11 modules dengan 45+ endpoints
-- **Frontend**: 12 pages dengan 20+ components
-- **Database**: 9 entities dengan optimized relationships
-- **Test Coverage**: Unit tests untuk critical OCR dan signature flows
-- **Documentation**: Complete API docs dengan Swagger UI
-- **Production Ready**: PM2 ecosystem configuration deployment-ready
-
-**Last Deployment**: Ready untuk production deployment dengan comprehensive monitoring dan backup systems.
+| Masalah | Solusi |
+|---------|--------|
+| Login gagal | Pastikan username dan password benar. Cek apakah server backend berjalan. |
+| OCR gagal | Pastikan file dapat dibaca. Format yang disarankan: PDF dengan resolusi baik. |
+| Tanda tangan tidak muncul | Pastikan file PDF tidak corrupt. Cek posisi koordinat tanda tangan. |
+| Aplikasi lambat | Cek koneksi internet dan performa server. Restart Redis jika perlu. |
 
 ---
 
 ## Lisensi
 
-Proprietary - Bosowa Bandar Agency
+Proprietary - Bosowa Bandar Group
 
 ---
 
-**Developed with modern web technologies for efficient document digitization.**
+## Credits
+
+**Project Owner**
+- Bosowa Bandar Group
+
+**Development Team**
+- Backend: NestJS Team
+- Frontend: React Team
+
+**Technologies Used**
+- Google Cloud Vision API
+- Groq AI
+- NestJS Framework
+- React Framework
+- MySQL Database
+
+---
+
+**Last Updated:** Januari 2026
+**Version:** 3.0
+**Status:** Production Ready
