@@ -2013,6 +2013,7 @@ button.mobile-menu-link.logout {
   height: 240px;
   padding: 1rem 0.5rem;
   min-width: 100%;
+  width: fit-content;
 }
 
 .chart-column {
@@ -2196,12 +2197,56 @@ input.error:focus, select.error:focus {
     grid-template-columns: 1fr;
   }
   
+  /* Optimize Chart for Mobile */
   .simple-bar-chart {
-    min-width: 120%; /* Force scroll on small screens if many cols */
+    min-width: 100%; /* Let it shrink if possible, but scroll if needed */
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .chart-column {
+    min-width: 40px; /* Make columns narrower on mobile to fit more */
   }
 
+  .bar {
+    width: 16px; /* Thinner bars */
+  }
+
+  /* Optimize KPI Row */
   .kpi-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* 2 cols instead of 1 stacked */
+  }
+  
+  .kpi-item:last-child {
+    grid-column: span 2; /* Make the 3rd item full width in 2-col grid */
+  }
+
+  /* Optimize User Error List Layout */
+  .user-error-item {
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .user-info {
+    order: 1;
+    flex: 1 0 auto; /* Allow to take space but not full row if count fits */
+    width: auto;
+    max-width: calc(100% - 60px); /* Leave space for count */
+    padding-bottom: 4px; /* Space between text and bar */
+  }
+
+  .error-count {
+    order: 2;
+    flex: 0 0 auto;
+    margin-left: auto; /* Push to right */
+  }
+
+  .progress-container {
+    order: 3;
+    flex: 1 0 100%; /* Force full width on new line */
+    height: 6px; /* Slightly thinner */
+    margin-top: 4px; /* Gap from text */
   }
 }
 
