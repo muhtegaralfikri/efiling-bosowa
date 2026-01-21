@@ -68,7 +68,6 @@ export default function LoginPage() {
           <div className="branding-logo">
             <img src={logo} alt="Bosowa Bandar Agensi" className="branding-logo-icon" />
             <div>
-              <h1>Bosowa Bandar</h1>
               <p>Sistem Manajemen Dokumen Digital</p>
             </div>
           </div>
@@ -98,7 +97,6 @@ export default function LoginPage() {
           {/* Logo for mobile */}
           <div className="login-mobile-logo">
             <img src={logo} alt="Bosowa" />
-            <span>Bosowa</span>
           </div>
 
           {/* Header */}
