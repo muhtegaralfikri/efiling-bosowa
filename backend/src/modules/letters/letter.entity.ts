@@ -20,6 +20,7 @@ import { EditLog } from '../edit-logs/edit-log.entity';
 @Index('idx_letters_tanggal', ['tanggalSurat'])
 @Index('idx_letters_nominal', ['totalNominal'])
 @Index('idx_letters_unit_created', ['unitBisnis', 'createdAt'])
+@Index('idx_letters_file_id', ['fileId']) // Optimasi JOIN di stats service
 export class Letter {
   @PrimaryGeneratedColumn('uuid')
   id: string;

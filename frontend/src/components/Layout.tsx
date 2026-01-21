@@ -15,7 +15,7 @@ import {
   PenTool,
   FileSignature,
 } from 'lucide-react';
-import logo from '../assets/bosowa-agensi.png';
+import logo from '../assets/bosowa-agensi.webp';
 import { useAuth } from '../context/AuthContext';
 import OfflineIndicator from './OfflineIndicator';
 import NotificationBell from './notification/NotificationBell';
