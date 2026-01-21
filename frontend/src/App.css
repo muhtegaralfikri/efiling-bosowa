@@ -308,8 +308,7 @@ a {
   .main-content {
     margin-left: 0;
     width: 100%;
-    padding: 1rem;
-    padding-bottom: 5rem;
+    padding: 1.5rem 1rem 6rem; /* Increased top padding, increased bottom padding */
   }
 
   .hide-mobile {
@@ -1974,7 +1973,7 @@ button.mobile-menu-link.logout {
 /* === STATS DASHBOARD === */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
 }
@@ -2192,62 +2191,124 @@ input.error:focus, select.error:focus {
   border-radius: 12px;
 }
 
+
+/* Stats Page Grid System */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-panel);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1024px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .stat-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
   
+  .stat-card {
+    padding: 1rem;
+  }
+
   /* Optimize Chart for Mobile */
+  .chart-scroll-container {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem 0.5rem;
+  }
+
   .simple-bar-chart {
-    min-width: 100%; /* Let it shrink if possible, but scroll if needed */
-    padding-left: 0;
-    padding-right: 0;
+    min-width: 500px; /* Force scroll if needed so bars aren't too thin */
+    padding: 1rem 0;
   }
   
   .chart-column {
-    min-width: 40px; /* Make columns narrower on mobile to fit more */
+    min-width: 40px;
   }
 
   .bar {
-    width: 16px; /* Thinner bars */
+    width: 20px; 
   }
 
   /* Optimize KPI Row */
   .kpi-row {
-    grid-template-columns: repeat(2, 1fr); /* 2 cols instead of 1 stacked */
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
   
-  .kpi-item:last-child {
-    grid-column: span 2; /* Make the 3rd item full width in 2-col grid */
+  .kpi-item {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .kpi-item .kpi-value {
+    margin-top: 0;
+    font-size: 1rem;
   }
 
   /* Optimize User Error List Layout */
   .user-error-item {
-    flex-wrap: wrap; /* Allow wrapping */
+    flex-wrap: wrap; 
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
   }
 
   .user-info {
     order: 1;
-    flex: 1 0 auto; /* Allow to take space but not full row if count fits */
+    flex: 1 1 auto;
     width: auto;
-    max-width: calc(100% - 60px); /* Leave space for count */
-    padding-bottom: 4px; /* Space between text and bar */
+    max-width: 100%;
   }
 
   .error-count {
     order: 2;
-    flex: 0 0 auto;
-    margin-left: auto; /* Push to right */
+    margin-left: auto; 
   }
 
   .progress-container {
     order: 3;
-    flex: 1 0 100%; /* Force full width on new line */
-    height: 6px; /* Slightly thinner */
-    margin-top: 4px; /* Gap from text */
+    flex: 1 0 100%; 
+    height: 6px; 
+    margin-top: 2px;
+  }
+
+  /* Panel Headers */
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .panel-head h1 {
+    font-size: 1.5rem;
   }
 }
 
+@media (max-width: 480px) {
+  .panel-head h1 {
+    font-size: 1.25rem;
+  }
 
+  .stat-card h3 {
+    font-size: 0.95rem;
+  }
+}

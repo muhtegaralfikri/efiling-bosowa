@@ -59,8 +59,8 @@ export default function StatsPage() {
   const total12Months = monthlyTotals.reduce((acc, m) => acc + m.total, 0);
 
   return (
-    <section className="panel">
-      <div className="panel-head">
+    <section>
+      <div className="panel-head" style={{ padding: '0 0.5rem' }}>
         <div>
           <p className="eyebrow">Statistik</p>
           <h1>Dashboard Admin</h1>
@@ -195,3 +195,5 @@ export default function StatsPage() {
     </section>
   );
 }
+
+
