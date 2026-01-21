@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import api from '../api/client';
@@ -10,6 +10,7 @@ export default function UsersPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form, setForm] = useState({ username: '', password: '', role: '', unitBisnis: '' });
+  const [showPassword, setShowPassword] = useState(false);
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['users'],
@@ -197,14 +198,23 @@ export default function UsersPage() {
               </label>
               <label>
                 {editingUser ? 'Password Baru' : 'Password'}
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  required={!editingUser}
-                  minLength={4}
-                  placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    required={!editingUser}
+                    minLength={4}
+                    placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </label>
               {!editingUser && (
                 <>
@@ -261,6 +271,37 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      <style>{`
+        .password-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .password-input-wrapper input {
+          width: 100%;
+          padding-right: 45px;
+        }
+
+        .password-toggle-btn {
+          position: absolute;
+          right: 10px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--text-secondary);
+          padding: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s;
+        }
+
+        .password-toggle-btn:hover {
+          color: var(--accent-primary);
+        }
+      `}</style>
     </section>
   );
 }

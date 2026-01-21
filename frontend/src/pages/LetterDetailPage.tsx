@@ -303,7 +303,7 @@ export default function LetterDetailPage() {
         <div className="actions">
           {!isEditing ? (
             <>
-              {(user?.role === 'ADMIN' || user?.role === 'USER') && (
+              {user && (
                 <button
                   type="button"
                   className="primary-btn"
