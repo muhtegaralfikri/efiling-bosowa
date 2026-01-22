@@ -40,7 +40,10 @@ export interface Letter {
   teleponPengirim?: string | null;
   perihal?: string | null;
   totalNominal: number;
+  fileId?: string | null;
   fileUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PaginationMeta {
