@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, Pencil, Plus, Trash2, X, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import api from '../api/client';
@@ -20,7 +20,6 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form, setForm] = useState({ username: '', password: '', role: '', unitBisnis: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [showUnitBisnisDropdown, setShowUnitBisnisDropdown] = useState(false);
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['users'],
@@ -65,7 +64,6 @@ export default function UsersPage() {
     setEditingUser(null);
     setForm({ username: '', password: '', role: '', unitBisnis: '' });
     setShowPassword(false);
-    setShowUnitBisnisDropdown(false);
     setShowModal(true);
   };
 
@@ -78,7 +76,6 @@ export default function UsersPage() {
       unitBisnis: user.unitBisnis || ''
     });
     setShowPassword(false);
-    setShowUnitBisnisDropdown(false);
     setShowModal(true);
   };
 
@@ -86,7 +83,6 @@ export default function UsersPage() {
     setShowModal(false);
     setEditingUser(null);
     setForm({ username: '', password: '', role: '', unitBisnis: '' });
-    setShowUnitBisnisDropdown(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,11 +111,6 @@ export default function UsersPage() {
     if (confirm(`Hapus user "${user.username}"?`)) {
       deleteMutation.mutate(user.id);
     }
-  };
-
-  const getUnitBisnisLabel = (value: string) => {
-    const item = UNIT_BISNIS_OPTIONS.find(opt => opt.value === value);
-    return item ? item.label : 'Pilih Unit Bisnis';
   };
 
   return (
@@ -258,43 +249,22 @@ export default function UsersPage() {
                     </select>
                   </label>
                   
-                  {/* Custom Dropdown for Unit Bisnis */}
+                  {/* Reverted to Native Select for Unit Bisnis */}
                   {form.role === 'USER' && (
-                    <label style={{ position: 'relative' }}>
+                    <label>
                       Unit Bisnis
-                      
-                      <div 
-                        className="custom-select-trigger" 
-                        onClick={() => setShowUnitBisnisDropdown(!showUnitBisnisDropdown)}
+                      <select
+                        value={form.unitBisnis}
+                        onChange={(e) => setForm({ ...form, unitBisnis: e.target.value })}
+                        required
                       >
-                        <span className={!form.unitBisnis ? 'placeholder' : ''}>
-                          {form.unitBisnis ? getUnitBisnisLabel(form.unitBisnis) : 'Pilih Unit Bisnis'}
-                        </span>
-                        <ChevronDown size={18} className={`chevron ${showUnitBisnisDropdown ? 'rotate' : ''}`} />
-                      </div>
-
-                      {showUnitBisnisDropdown && (
-                        <>
-                          <div className="custom-dropdown-overlay" onClick={() => setShowUnitBisnisDropdown(false)} />
-                          <div className="custom-select-options">
-                            {UNIT_BISNIS_OPTIONS.map((option) => (
-                              <div
-                                key={option.value}
-                                className={`custom-option ${form.unitBisnis === option.value ? 'selected' : ''}`}
-                                onClick={() => {
-                                  setForm({ ...form, unitBisnis: option.value });
-                                  setShowUnitBisnisDropdown(false);
-                                }}
-                              >
-                                {option.label}
-                                {form.unitBisnis === option.value && (
-                                  <span className="check-indicator">✓</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
+                        <option value="">Pilih Unit Bisnis</option>
+                        {UNIT_BISNIS_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                   )}
                 </>
@@ -340,96 +310,6 @@ export default function UsersPage() {
 
         .password-toggle-btn:hover {
           color: var(--accent-primary);
-        }
-
-        /* Custom Dropdown Styles */
-        .custom-select-trigger {
-          padding: 0.75rem 1rem;
-          border: 1px solid var(--border-color);
-          border-radius: 10px;
-          font-size: 1rem;
-          background: var(--bg-input);
-          color: var(--text-primary);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .custom-select-trigger .placeholder {
-          color: var(--text-secondary);
-          opacity: 0.7;
-        }
-
-        .custom-select-trigger:hover {
-          border-color: #1d74d8;
-        }
-
-        .custom-select-trigger .chevron {
-          color: var(--text-secondary);
-          transition: transform 0.2s;
-        }
-
-        .custom-select-trigger .chevron.rotate {
-          transform: rotate(180deg);
-        }
-
-        .custom-dropdown-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 90;
-          background: transparent;
-        }
-
-        .custom-select-options {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          margin-top: 0.5rem;
-          background: var(--bg-secondary);
-          border: 1px solid var(--border-color);
-          border-radius: 10px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-          z-index: 100;
-          max-height: 220px; /* Fixed Height for Scroll */
-          overflow-y: auto;
-          animation: fadeIn 0.1s ease-out;
-        }
-
-        .custom-option {
-          padding: 0.75rem 1rem;
-          cursor: pointer;
-          transition: background 0.1s;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 0.95rem;
-        }
-
-        .custom-option:hover {
-          background: var(--bg-hover);
-          color: var(--accent-primary);
-        }
-
-        .custom-option.selected {
-          background: var(--accent-light);
-          color: var(--accent-primary);
-          font-weight: 600;
-        }
-
-        .check-indicator {
-          font-weight: bold;
-          font-size: 0.9rem;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-5px); }
-          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </section>
