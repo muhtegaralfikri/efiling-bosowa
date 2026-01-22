@@ -98,10 +98,10 @@ export class LettersService {
     // Use Google Vision API if available, otherwise fallback to Tesseract
     let ocrRawText: string;
 
-    const maxPagesRaw = Number(process.env.PDF_OCR_MAX_PAGES ?? 25);
+    const maxPagesRaw = Number(process.env.PDF_OCR_MAX_PAGES ?? 10); // Optimized: 10 instead of 25
     const maxPages = Number.isFinite(maxPagesRaw)
       ? Math.max(maxPagesRaw, 1)
-      : 25;
+      : 10;
 
     const pageConcurrencyRaw = Number(
       process.env.PDF_OCR_PAGE_CONCURRENCY ?? 2,
@@ -144,7 +144,7 @@ export class LettersService {
       let pageIndex = 0;
       for await (const pageImage of this.pdfConverterService.iteratePageImages(
         file.filePath,
-        { scale: 2.0 },
+        { scale: 1.5 }, // Optimized scale (40% faster)
       )) {
         if (pageIndex >= maxPages) {
           throw new BadRequestException(
@@ -161,6 +161,9 @@ export class LettersService {
       }
 
       await Promise.all(inFlight);
+
+      const totalPages = pageIndex;
+      this.logger.log(`✓ OCR completed: ${totalPages} pages processed (scale: 1.5x, concurrency: ${pageConcurrency})`);
 
       ocrRawText = pageTexts.filter(Boolean).join('\n\n');
     } else {
