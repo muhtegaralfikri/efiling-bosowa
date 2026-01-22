@@ -60,7 +60,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
           database,
           autoLoadEntities: true,
           synchronize: process.env.NODE_ENV !== 'production',
-          timezone: 'Z', // Database stores UTC, don't convert
+          timezone: '+08:00', // WITA timezone (UTC+8) for Makassar server
           // Connection Pool Settings (optimized for 2GB VPS)
           extra: {
             connectionLimit: 10,
