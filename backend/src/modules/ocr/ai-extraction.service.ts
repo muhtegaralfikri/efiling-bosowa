@@ -67,8 +67,9 @@ export class AiExtractionService {
         `AI extraction complete. Found: letterNumber=${parsed.letterNumber}, perihal=${parsed.perihal}`,
       );
       return parsed;
-    } catch (error: any) {
-      const message = error?.message || JSON.stringify(error);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
       this.logger.error(`AI extraction failed: ${message}`);
       return this.emptyResult();
     }
@@ -89,8 +90,6 @@ export class AiExtractionService {
 
     return completion.choices[0]?.message?.content || '';
   }
-
-
 
   private buildPrompt(ocrText: string): string {
     return `Kamu adalah asisten ekstraksi data dari dokumen surat/invoice Indonesia.

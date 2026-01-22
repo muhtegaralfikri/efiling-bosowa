@@ -58,7 +58,7 @@ export class PdfConverterService {
 
       // pdf-to-img returns an async iterator of page images
       const document = await pdf(pdfPath, { scale: 2.0 });
-      
+
       for await (const image of document) {
         const imagePath = path.join(outputDir, `page-${pageNum}.png`);
         await fs.writeFile(imagePath, image);
@@ -68,9 +68,10 @@ export class PdfConverterService {
 
       this.logger.log(`Converted PDF to ${imagePaths.length} image(s)`);
       return imagePaths;
-    } catch (error: any) {
-      this.logger.error('PDF conversion failed', error?.message || error);
-      throw new Error(`PDF conversion failed: ${error?.message || 'Unknown error'}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('PDF conversion failed', message);
+      throw new Error(`PDF conversion failed: ${message}`);
     }
   }
 
@@ -80,7 +81,7 @@ export class PdfConverterService {
    */
   async convertFirstPage(pdfPath: string): Promise<string> {
     const { pdf } = await import('pdf-to-img');
-    
+
     const pdfDir = path.dirname(pdfPath);
     const pdfName = path.basename(pdfPath, '.pdf');
     const outputDir = path.join(pdfDir, `${pdfName}_preview`);
@@ -91,17 +92,18 @@ export class PdfConverterService {
 
     try {
       const document = await pdf(pdfPath, { scale: 1.5 });
-      
+
       // Get only the first page
       for await (const image of document) {
         const imagePath = path.join(outputDir, 'preview-1.png');
         await fs.writeFile(imagePath, image);
         return imagePath;
       }
-      
+
       throw new Error('Preview generation failed: No pages found in PDF');
-    } catch (error: any) {
-      this.logger.error('PDF preview generation failed', error);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('PDF preview generation failed', message);
       throw error;
     }
   }

@@ -308,7 +308,7 @@ a {
   .main-content {
     margin-left: 0;
     width: 100%;
-    padding: 1.5rem 1rem 6rem; /* Increased top padding, increased bottom padding */
+    padding: 1.5rem 1rem 7.5rem; /* Increased top padding, increased bottom padding */
   }
 
   .hide-mobile {
@@ -1319,169 +1319,328 @@ select option {
   }
 }
 
+/* Mobile Bottom Bar - Premium Floating Design */
 .mobile-bottom-bar {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--mobile-bar-bg);
-  border-top: 1px solid var(--border-color);
-  padding: 0.45rem 0.8rem env(safe-area-inset-bottom, 0.6rem);
-  justify-content: space-around;
-  align-items: center;
-  z-index: 50;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-  transition: background 0.3s ease;
+  z-index: 1000;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.mobile-bottom-bar a {
-  color: var(--accent-primary);
-  font-weight: 700;
-  text-decoration: none;
+@media (max-width: 768px) {
+  .mobile-bottom-bar {
+    display: flex;
+    bottom: 1.25rem;
+    left: 1rem;
+    right: 1rem;
+    height: 72px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 24px;
+    padding: 0 0.5rem;
+    justify-content: space-evenly;
+    align-items: center;
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+
+  [data-theme="dark"] .mobile-bottom-bar {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.2),
+      0 10px 15px -3px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
 }
 
 .mobile-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-  min-width: 72px;
-  padding: 0.25rem 0.35rem;
-  border-radius: 12px;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.5rem;
+  width: 64px;
+  height: 56px;
+  border-radius: 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-primary);
+  opacity: 0;
+  border-radius: 16px;
+  transition: opacity 0.3s ease;
+  z-index: -1;
 }
 
 .mobile-nav-icon {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  width: 22px;
+  height: 22px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+  z-index: 1;
 }
 
 .mobile-nav-label {
-  line-height: 1;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  opacity: 0.8;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  z-index: 1;
 }
 
+/* Active State */
 .mobile-nav-item.active {
-  background: var(--accent-light);
-  color: var(--text-primary);
-  border: 1px solid var(--accent-light);
-}
-
-.mobile-nav-item:not(.active) {
-  opacity: 0.75;
-}
-
-button.mobile-nav-item {
-  background: none;
-  border: none;
   color: var(--accent-primary);
-  font-weight: 700;
-  font-family: 'Sora', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  cursor: pointer;
+  transform: translateY(-4px);
 }
 
-/* Mobile More Menu */
+.mobile-nav-item.active .mobile-nav-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 12px rgba(29, 116, 216, 0.3));
+}
+
+.mobile-nav-item.active .mobile-nav-label {
+  opacity: 1;
+  font-weight: 700;
+}
+
+/* Hover State (for non-touch or long press feedback) */
+.mobile-nav-item:active {
+  transform: scale(0.92);
+}
+
+/* Special styling for "Lainnya" button */
+button.mobile-nav-item {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Mobile More Menu - Glassmorphism Redesign */
 .mobile-menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  animation: fadeIn 0.2s ease;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1100;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 1rem 6rem; /* Space for bottom bar */
 }
 
 .mobile-menu {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 28px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform-origin: bottom center;
+  animation: slideUpSpring 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+}
+
+[data-theme="dark"] .mobile-menu {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -5px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.mobile-menu::after {
+  content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--mobile-menu-bg);
-  border-radius: 20px 20px 0 0;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
-  animation: slideUp 0.25s ease;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  border: inherit;
+  border-top: none;
+  border-left: none;
+  z-index: -1;
+  opacity: 0; /* Hidden for now since we are floating */
 }
 
 .mobile-menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+  border: none;
 }
 
 .mobile-menu-header span {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .mobile-menu-header button {
-  background: none;
-  border: none;
-  color: var(--accent-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-header button:hover,
+.mobile-menu-header button:active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  transform: rotate(90deg);
+}
+
+/* Animation on entrance */
+.mobile-menu-header button svg {
+  animation: rotateIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes rotateIn {
+  from { 
+    transform: rotate(-180deg) scale(0.5); 
+    opacity: 0;
+  }
+  to { 
+    transform: rotate(0) scale(1); 
+    opacity: 1;
+  }
 }
 
 .mobile-menu-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
 }
 
 .mobile-menu-link {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 0.75rem;
-  border-radius: 12px;
-  color: var(--accent-primary);
-  text-decoration: none;
-  font-weight: 500;
-  font-family: 'Sora', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  transition: background 0.2s ease;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  text-align: center;
+  position: relative; /* For active indicator if needed */
 }
 
-.mobile-menu-link:hover,
+/* Active state (persisting) */
 .mobile-menu-link.active {
   background: var(--accent-light);
+  border-color: var(--accent-light);
+  color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+/* Hover state only on devices that support hover */
+@media (hover: hover) {
+  .mobile-menu-link:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+  }
+}
+
+/* Touch feedback */
+.mobile-menu-link:active {
+  transform: scale(0.96);
+  background: var(--bg-hover);
+}
+
+.mobile-menu-link svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-menu-link span {
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 button.mobile-menu-link {
   width: 100%;
-  background: none;
-  border: none;
   cursor: pointer;
-  font-size: 1rem;
 }
 
-button.mobile-menu-link.logout {
-  color: #dc3545;
-  border-top: 1px solid rgba(0, 61, 122, 0.1);
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-  border-radius: 0;
+.mobile-menu-link.logout {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.05);
+  margin-top: 0; /* Reset margin from previous design */
 }
 
+.mobile-menu-link.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+/* User Profile Section in Menu */
 .mobile-menu-user {
+  grid-column: span 2;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  background: var(--bg-hover);
-  border-radius: 10px;
-  font-size: 0.9rem;
-  color: var(--text-primary);
+  gap: 1rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
 }
 
 .mobile-menu-role {
-  font-size: 0.75rem;
-  background: var(--accent-light);
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  color: var(--accent-primary);
-  font-weight: 600;
+  margin-left: auto;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 @keyframes fadeIn {
@@ -1489,9 +1648,15 @@ button.mobile-menu-link.logout {
   to { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+@keyframes slideUpSpring {
+  from { 
+    opacity: 0;
+    transform: translateY(40px) scale(0.95); 
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1); 
+  }
 }
 
 .camera-box {

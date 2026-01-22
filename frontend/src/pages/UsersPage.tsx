@@ -193,7 +193,7 @@ export default function UsersPage() {
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required={!editingUser}
                   minLength={3}
-                  placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
+                  placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Masukkan username...'}
                 />
               </label>
               <label>
@@ -205,7 +205,7 @@ export default function UsersPage() {
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required={!editingUser}
                     minLength={4}
-                    placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
+                    placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Masukkan password...'}
                   />
                   <button
                     type="button"

@@ -99,7 +99,7 @@ export default function LettersListPage() {
       queryKey: ['letters', { search, page, ...filters }],
       queryFn: async (): Promise<PaginatedResponse<Letter>> => {
         try {
-          const params: any = {
+          const params: Record<string, string | number> = {
             page,
             limit: PAGE_SIZE,
           };

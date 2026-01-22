@@ -76,8 +76,12 @@ export class LettersService {
 
   async previewOcr(dto: OcrPreviewDto) {
     const method = dto.extractionMethod || 'ai';
-    const cacheTtlRaw = Number(process.env.OCR_PREVIEW_CACHE_TTL_SECONDS ?? 10 * 60);
-    const cacheTtlSeconds = Number.isFinite(cacheTtlRaw) ? Math.max(cacheTtlRaw, 0) : 10 * 60;
+    const cacheTtlRaw = Number(
+      process.env.OCR_PREVIEW_CACHE_TTL_SECONDS ?? 10 * 60,
+    );
+    const cacheTtlSeconds = Number.isFinite(cacheTtlRaw)
+      ? Math.max(cacheTtlRaw, 0)
+      : 10 * 60;
     const cacheKey = this.ocrPreviewCache.makeKey({
       kind: 'ocrPreview',
       fileId: dto.fileId,
@@ -99,7 +103,9 @@ export class LettersService {
       ? Math.max(maxPagesRaw, 1)
       : 25;
 
-    const pageConcurrencyRaw = Number(process.env.PDF_OCR_PAGE_CONCURRENCY ?? 2);
+    const pageConcurrencyRaw = Number(
+      process.env.PDF_OCR_PAGE_CONCURRENCY ?? 2,
+    );
     const pageConcurrency = Number.isFinite(pageConcurrencyRaw)
       ? Math.max(pageConcurrencyRaw, 1)
       : 2;
@@ -111,63 +117,65 @@ export class LettersService {
 
     // If PDF, convert to images first
     if (isPdf) {
-        if (!this.visionOcrService.isAvailable()) {
+      if (!this.visionOcrService.isAvailable()) {
+        throw new BadRequestException(
+          'Google Vision API tidak tersedia. Pastikan GOOGLE_APPLICATION_CREDENTIALS sudah diset.',
+        );
+      }
+
+      this.logger.log(
+        `Detected PDF file, OCR via in-memory page images (maxPages=${maxPages}, concurrency=${pageConcurrency})...`,
+      );
+
+      const pageTexts: string[] = [];
+      const inFlight = new Set<Promise<void>>();
+
+      const schedule = (pageIndex: number, buf: Buffer) => {
+        const task = (async () => {
+          const pageText =
+            await this.visionOcrService.recognizeDocumentBuffer(buf);
+          pageTexts[pageIndex] = `--- Page ${pageIndex + 1} ---\n${pageText}`;
+        })().finally(() => {
+          inFlight.delete(task);
+        });
+        inFlight.add(task);
+      };
+
+      let pageIndex = 0;
+      for await (const pageImage of this.pdfConverterService.iteratePageImages(
+        file.filePath,
+        { scale: 2.0 },
+      )) {
+        if (pageIndex >= maxPages) {
           throw new BadRequestException(
-            'Google Vision API tidak tersedia. Pastikan GOOGLE_APPLICATION_CREDENTIALS sudah diset.',
+            `PDF terlalu banyak halaman (maksimal ${maxPages}). Mohon crop/pecah PDF sebelum upload.`,
           );
         }
 
-        this.logger.log(
-          `Detected PDF file, OCR via in-memory page images (maxPages=${maxPages}, concurrency=${pageConcurrency})...`,
-        );
-
-        const pageTexts: string[] = [];
-        const inFlight = new Set<Promise<void>>();
-
-        const schedule = (pageIndex: number, buf: Buffer) => {
-          let task: Promise<void>;
-          task = (async () => {
-            const pageText = await this.visionOcrService.recognizeDocumentBuffer(
-              buf,
-            );
-            pageTexts[pageIndex] = `--- Page ${pageIndex + 1} ---\n${pageText}`;
-          })().finally(() => {
-            inFlight.delete(task);
-          });
-          inFlight.add(task);
-        };
-
-        let pageIndex = 0;
-        for await (const pageImage of this.pdfConverterService.iteratePageImages(
-          file.filePath,
-          { scale: 2.0 },
-        )) {
-          if (pageIndex >= maxPages) {
-            throw new BadRequestException(
-              `PDF terlalu banyak halaman (maksimal ${maxPages}). Mohon crop/pecah PDF sebelum upload.`,
-            );
-          }
-
-          while (inFlight.size >= pageConcurrency) {
-            await Promise.race(inFlight);
-          }
-
-          schedule(pageIndex, pageImage);
-          pageIndex++;
+        while (inFlight.size >= pageConcurrency) {
+          await Promise.race(inFlight);
         }
 
-        await Promise.all(inFlight);
-
-        ocrRawText = pageTexts.filter(Boolean).join('\n\n');
-      } else {
-        // Regular image file
-        if (this.visionOcrService.isAvailable()) {
-          this.logger.log('Using Google Vision API for OCR');
-          ocrRawText = await this.visionOcrService.recognizeDocument(file.filePath);
-        } else {
-          throw new BadRequestException('Google Vision API tidak tersedia. Pastikan GOOGLE_APPLICATION_CREDENTIALS sudah diset.');
-        }
+        schedule(pageIndex, pageImage);
+        pageIndex++;
       }
+
+      await Promise.all(inFlight);
+
+      ocrRawText = pageTexts.filter(Boolean).join('\n\n');
+    } else {
+      // Regular image file
+      if (this.visionOcrService.isAvailable()) {
+        this.logger.log('Using Google Vision API for OCR');
+        ocrRawText = await this.visionOcrService.recognizeDocument(
+          file.filePath,
+        );
+      } else {
+        throw new BadRequestException(
+          'Google Vision API tidak tersedia. Pastikan GOOGLE_APPLICATION_CREDENTIALS sudah diset.',
+        );
+      }
+    }
 
     if (ocrRawText.length > maxChars) {
       ocrRawText = ocrRawText.slice(0, maxChars) + '\n\n...[truncated]';
@@ -248,7 +256,7 @@ export class LettersService {
     if (!dto.unitBisnis) {
       throw new Error('Unit bisnis harus disediakan');
     }
-    
+
     const meta = dto.fileId
       ? await this.filesService.getFile(dto.fileId)
       : null;
@@ -285,7 +293,7 @@ export class LettersService {
     nominalMin?: number,
     nominalMax?: number,
     page = 1,
-    limit = 10
+    limit = 10,
   ) {
     const safeLimit = Math.min(Math.max(limit ?? 10, 1), 100);
     const safePage = Math.max(page ?? 1, 1);
@@ -308,60 +316,80 @@ export class LettersService {
 
       // Apply specific filters first (use LIKE for MariaDB)
       if (letterNumber) {
-        queryBuilder.andWhere('letter.letterNumber LIKE :letterNumber', { 
-          letterNumber: `%${letterNumber}%` 
+        queryBuilder.andWhere('letter.letterNumber LIKE :letterNumber', {
+          letterNumber: `%${letterNumber}%`,
         });
       }
 
       if (namaPengirim) {
-        queryBuilder.andWhere('letter.namaPengirim LIKE :namaPengirim', { 
-          namaPengirim: `%${namaPengirim}%` 
+        queryBuilder.andWhere('letter.namaPengirim LIKE :namaPengirim', {
+          namaPengirim: `%${namaPengirim}%`,
         });
       }
 
       if (perihal) {
-        queryBuilder.andWhere('letter.perihal LIKE :perihal', { 
-          perihal: `%${perihal}%` 
+        queryBuilder.andWhere('letter.perihal LIKE :perihal', {
+          perihal: `%${perihal}%`,
         });
       }
 
       if (jenisDokumen) {
-        queryBuilder.andWhere('letter.jenisDokumen = :jenisDokumen', { jenisDokumen });
+        queryBuilder.andWhere('letter.jenisDokumen = :jenisDokumen', {
+          jenisDokumen,
+        });
       }
 
       if (jenisSurat) {
-        queryBuilder.andWhere('letter.jenisSurat = :jenisSurat', { jenisSurat });
+        queryBuilder.andWhere('letter.jenisSurat = :jenisSurat', {
+          jenisSurat,
+        });
       }
-      
+
       if (unitBisnis) {
-        queryBuilder.andWhere('letter.unitBisnis = :unitBisnis', { unitBisnis });
+        queryBuilder.andWhere('letter.unitBisnis = :unitBisnis', {
+          unitBisnis,
+        });
       }
 
       // Date range filter
       if (tanggalMulai || tanggalSelesai) {
         if (tanggalMulai && tanggalSelesai) {
-          queryBuilder.andWhere('letter.tanggalSurat BETWEEN :tanggalMulai AND :tanggalSelesai', {
-            tanggalMulai,
-            tanggalSelesai
-          });
+          queryBuilder.andWhere(
+            'letter.tanggalSurat BETWEEN :tanggalMulai AND :tanggalSelesai',
+            {
+              tanggalMulai,
+              tanggalSelesai,
+            },
+          );
         } else if (tanggalMulai) {
-          queryBuilder.andWhere('letter.tanggalSurat >= :tanggalMulai', { tanggalMulai });
+          queryBuilder.andWhere('letter.tanggalSurat >= :tanggalMulai', {
+            tanggalMulai,
+          });
         } else if (tanggalSelesai) {
-          queryBuilder.andWhere('letter.tanggalSurat <= :tanggalSelesai', { tanggalSelesai });
+          queryBuilder.andWhere('letter.tanggalSurat <= :tanggalSelesai', {
+            tanggalSelesai,
+          });
         }
       }
 
       // Nominal range filter
       if (nominalMin || nominalMax) {
         if (nominalMin && nominalMax) {
-          queryBuilder.andWhere('letter.totalNominal BETWEEN :nominalMin AND :nominalMax', {
-            nominalMin,
-            nominalMax
-          });
+          queryBuilder.andWhere(
+            'letter.totalNominal BETWEEN :nominalMin AND :nominalMax',
+            {
+              nominalMin,
+              nominalMax,
+            },
+          );
         } else if (nominalMin) {
-          queryBuilder.andWhere('letter.totalNominal >= :nominalMin', { nominalMin });
+          queryBuilder.andWhere('letter.totalNominal >= :nominalMin', {
+            nominalMin,
+          });
         } else if (nominalMax) {
-          queryBuilder.andWhere('letter.totalNominal <= :nominalMax', { nominalMax });
+          queryBuilder.andWhere('letter.totalNominal <= :nominalMax', {
+            nominalMax,
+          });
         }
       }
 
@@ -369,9 +397,11 @@ export class LettersService {
       if (keyword) {
         queryBuilder.andWhere(
           '(letter.letterNumber LIKE :keyword OR letter.namaPengirim LIKE :keyword OR letter.perihal LIKE :keyword OR letter.jenisSurat LIKE :keyword OR letter.jenisDokumen LIKE :keyword OR letter.unitBisnis LIKE :keyword)',
-          { keyword: `%${keyword}%` }
+          { keyword: `%${keyword}%` },
         );
-        this.logger.log(`Keyword search: "${keyword}" - searching in letterNumber, namaPengirim, perihal, jenisSurat, jenisDokumen, unitBisnis`);
+        this.logger.log(
+          `Keyword search: "${keyword}" - searching in letterNumber, namaPengirim, perihal, jenisSurat, jenisDokumen, unitBisnis`,
+        );
       }
 
       // Order and pagination
@@ -392,8 +422,10 @@ export class LettersService {
           pageCount: Math.ceil(total / safeLimit),
         },
       };
-    } catch (error: any) {
-      this.logger.error(`Database query failed: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Database query failed: ${message}`, stack);
       throw new InternalServerErrorException('Search query failed');
     }
   }

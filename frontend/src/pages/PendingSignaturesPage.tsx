@@ -21,6 +21,7 @@ export default function PendingSignaturesPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [docPreviewUrl, setDocPreviewUrl] = useState<string | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   const { data: pendingRequests = [], isLoading } = useQuery({
     queryKey: ['pending-signatures'],
@@ -65,21 +66,26 @@ export default function PendingSignaturesPage() {
     setSignatureSize({ width: 150, height: 75 });
   };
 
+  // Separate effect for cleanup when request changes to null
   useEffect(() => {
-    let cancelled = false;
+    if (!selectedRequest && blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+  }, [selectedRequest]);
 
-    setDocPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
-
+  // Effect for fetching document preview
+  useEffect(() => {
     if (!selectedRequest) return;
+
+    let cancelled = false;
 
     api
       .get(`/letters/${selectedRequest.letterId}/preview-image`, { responseType: 'blob' })
       .then((res) => {
         if (cancelled) return;
         const blobUrl = URL.createObjectURL(new Blob([res.data]));
+        blobUrlRef.current = blobUrl;
         setDocPreviewUrl(blobUrl);
       })
       .catch((e) => {
@@ -89,10 +95,10 @@ export default function PendingSignaturesPage() {
 
     return () => {
       cancelled = true;
-      setDocPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
     };
   }, [selectedRequest]);
 

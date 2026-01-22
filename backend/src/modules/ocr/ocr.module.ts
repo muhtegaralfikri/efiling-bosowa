@@ -8,4 +8,3 @@ import { VisionOcrService } from './vision-ocr.service';
   exports: [AiExtractionService, VisionOcrService, PdfConverterService],
 })
 export class OcrModule {}
-
