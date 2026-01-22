@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Queue, Worker, type Job } from 'bullmq';
 import IORedis from 'ioredis';
 import { LettersService, type AuthenticatedUser } from './letters.service';
@@ -19,7 +24,10 @@ export class OcrPreviewQueueService implements OnModuleInit, OnModuleDestroy {
 
   constructor(private readonly lettersService: LettersService) {}
 
-  private async runWithTimeout<T>(ms: number, task: () => Promise<T>): Promise<T> {
+  private async runWithTimeout<T>(
+    ms: number,
+    task: () => Promise<T>,
+  ): Promise<T> {
     if (!Number.isFinite(ms) || ms <= 0) {
       return task();
     }
@@ -41,14 +49,12 @@ export class OcrPreviewQueueService implements OnModuleInit, OnModuleDestroy {
     const redisUrl = process.env.REDIS_URL;
     const connection = redisUrl
       ? new IORedis(redisUrl, { maxRetriesPerRequest: null })
-      : new IORedis(
-          {
-            host: process.env.REDIS_HOST || '127.0.0.1',
-            port: Number(process.env.REDIS_PORT || 6379),
-            password: process.env.REDIS_PASSWORD || undefined,
-            maxRetriesPerRequest: null,
-          },
-        );
+      : new IORedis({
+          host: process.env.REDIS_HOST || '127.0.0.1',
+          port: Number(process.env.REDIS_PORT || 6379),
+          password: process.env.REDIS_PASSWORD || undefined,
+          maxRetriesPerRequest: null,
+        });
 
     this.connection = connection;
     const timeoutRaw = Number(process.env.OCR_JOB_TIMEOUT_MS ?? 120000);
@@ -64,13 +70,17 @@ export class OcrPreviewQueueService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
-    const enabled = (process.env.OCR_WORKER_ENABLED ?? 'true').toLowerCase() !== 'false';
+    const enabled =
+      (process.env.OCR_WORKER_ENABLED ?? 'true').toLowerCase() !== 'false';
     if (!enabled) {
       this.logger.log('OCR worker disabled (OCR_WORKER_ENABLED=false)');
       return;
     }
 
-    const concurrency = Math.max(Number(process.env.OCR_WORKER_CONCURRENCY || 1), 1);
+    const concurrency = Math.max(
+      Number(process.env.OCR_WORKER_CONCURRENCY || 1),
+      1,
+    );
     this.worker = new Worker<OcrPreviewJobData, unknown>(
       'ocr-preview',
       async (job) => {
@@ -106,7 +116,10 @@ export class OcrPreviewQueueService implements OnModuleInit, OnModuleDestroy {
     if (!this.queue) {
       throw new Error('OCR queue not initialized');
     }
-    const job = await this.queue.add('preview', { requestedBy: user.userId, dto });
+    const job = await this.queue.add('preview', {
+      requestedBy: user.userId,
+      dto,
+    });
     return { jobId: job.id };
   }
 

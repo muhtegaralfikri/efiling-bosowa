@@ -25,32 +25,30 @@ interface LocationState {
   originalMeta?: { fileId: string };
 }
 
-const getInitialForm = (state: LocationState) => {
-  if (state.ocrResult) {
-    return {
-      letterNumber: state.ocrResult.letterNumber || '',
-      jenisSurat: 'MASUK',
-      jenisDokumen: 'SURAT',
-      unitBisnis: '', // Will be set automatically for regular users
-      tanggalSurat: state.ocrResult.tanggalSurat || '',
-      namaPengirim: state.ocrResult.namaPengirim || '',
-      alamatPengirim: state.ocrResult.alamatPengirim || '',
-      teleponPengirim: state.ocrResult.teleponPengirim || '',
-      perihal: state.ocrResult.perihal || '',
-      totalNominal: state.ocrResult.totalNominal || 0,
-    };
-  }
+const getInitialForm = (state: LocationState, userUnitBisnis?: string) => {
+  const baseForm = state.ocrResult ? {
+    letterNumber: state.ocrResult.letterNumber || '',
+    jenisSurat: 'MASUK',
+    jenisDokumen: 'SURAT',
+    unitBisnis: '', // Will be set automatically for regular users
+    tanggalSurat: state.ocrResult.tanggalSurat || '',
+    namaPengirim: state.ocrResult.namaPengirim || '',
+    alamatPengirim: state.ocrResult.alamatPengirim || '',
+    teleponPengirim: state.ocrResult.teleponPengirim || '',
+    perihal: state.ocrResult.perihal || '',
+    totalNominal: state.ocrResult.totalNominal || 0,
+  } : null;
 
   const saved = localStorage.getItem(DRAFT_KEY);
-  if (saved) {
+  const savedForm = saved ? (() => {
     try {
       return JSON.parse(saved);
     } catch {
-      // ignore
+      return null;
     }
-  }
+  })() : null;
 
-  return {
+  const defaultForm = {
     letterNumber: '',
     jenisSurat: 'MASUK',
     jenisDokumen: 'SURAT',
@@ -62,6 +60,15 @@ const getInitialForm = (state: LocationState) => {
     perihal: '',
     totalNominal: 0,
   };
+
+  const form = baseForm || savedForm || defaultForm;
+
+  // Auto-set unit bisnis for regular users
+  if (userUnitBisnis) {
+    form.unitBisnis = userUnitBisnis;
+  }
+
+  return form;
 };
 
 export default function LettersFormPage() {
@@ -71,7 +78,7 @@ export default function LettersFormPage() {
   const { user } = useAuth();
   const state = (location.state || {}) as LocationState;
 
-  const [form, setForm] = useState(() => getInitialForm(state));
+  const [form, setForm] = useState(() => getInitialForm(state, user?.unitBisnis ?? undefined));
   const senderConfidence = state.ocrResult?.senderConfidence;
   const extractionMethod = state.ocrResult?.extractionMethod;
   const [message, setMessage] = useState('');
@@ -92,13 +99,6 @@ export default function LettersFormPage() {
     localStorage.removeItem(DRAFT_KEY);
     setHasDraft(false);
   };
-
-  // Auto-set unit bisnis for regular users
-  useEffect(() => {
-    if (user && user.role !== 'ADMIN' && user.role !== 'MANAJEMEN' && user.unitBisnis) {
-      setForm((prev: any) => ({ ...prev, unitBisnis: user.unitBisnis }));
-    }
-  }, [user]);
 
   const isAdminOrManajemen = user && (user.role === 'ADMIN' || user.role === 'MANAJEMEN');
 
@@ -249,7 +249,7 @@ export default function LettersFormPage() {
           <div className="unit-bisnis-readonly">
             <div className="unit-bisnis-label">Unit Bisnis</div>
             <div className="unit-bisnis-value">
-              {(user.unitBisnis as any).replace('_', ' ')}
+              {user.unitBisnis.replace('_', ' ')}
             </div>
           </div>
         )}

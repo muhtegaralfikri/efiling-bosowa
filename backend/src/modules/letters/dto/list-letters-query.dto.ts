@@ -1,5 +1,14 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min, IsDateString, IsIn, IsNumber } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  IsDateString,
+  IsIn,
+  IsNumber,
+} from 'class-validator';
 
 export class ListLettersQueryDto {
   @IsString()
@@ -26,9 +35,22 @@ export class ListLettersQueryDto {
   @IsOptional()
   jenisSurat?: 'MASUK' | 'KELUAR';
 
-  @IsIn(['BOSOWA_TAXI', 'OTORENTAL_NUSANTARA', 'OTO_GARAGE_INDONESIA', 'MALLOMO', 'LAGALIGO_LOGISTIK', 'PORT_MANAGEMENT'])
+  @IsIn([
+    'BOSOWA_TAXI',
+    'OTORENTAL_NUSANTARA',
+    'OTO_GARAGE_INDONESIA',
+    'MALLOMO',
+    'LAGALIGO_LOGISTIK',
+    'PORT_MANAGEMENT',
+  ])
   @IsOptional()
-  unitBisnis?: 'BOSOWA_TAXI' | 'OTORENTAL_NUSANTARA' | 'OTO_GARAGE_INDONESIA' | 'MALLOMO' | 'LAGALIGO_LOGISTIK' | 'PORT_MANAGEMENT';
+  unitBisnis?:
+    | 'BOSOWA_TAXI'
+    | 'OTORENTAL_NUSANTARA'
+    | 'OTO_GARAGE_INDONESIA'
+    | 'MALLOMO'
+    | 'LAGALIGO_LOGISTIK'
+    | 'PORT_MANAGEMENT';
 
   @IsDateString()
   @IsOptional()

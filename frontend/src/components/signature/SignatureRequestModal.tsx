@@ -52,10 +52,6 @@ export default function SignatureRequestModal({
   };
 
   const handleSubmit = () => {
-    console.log('=== FRONTEND SUBMIT SIGNATURE REQUEST ===');
-    console.log('Assignments:', assignments);
-    console.log('Assignments length:', assignments.length);
-    
     if (assignments.length === 0) {
       toast.error('Pilih minimal satu user untuk tanda tangan');
       return;

@@ -47,7 +47,9 @@ export class ImageProcessorService {
           .png({ compressionLevel: this.PNG_COMPRESSION })
           .toFile(compressedPath);
       } else if (ext === '.webp') {
-        await pipeline.webp({ quality: this.WEBP_QUALITY }).toFile(compressedPath);
+        await pipeline
+          .webp({ quality: this.WEBP_QUALITY })
+          .toFile(compressedPath);
       } else {
         await pipeline
           .jpeg({ quality: this.JPEG_QUALITY, mozjpeg: true })

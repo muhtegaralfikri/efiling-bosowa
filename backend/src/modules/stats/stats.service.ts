@@ -37,7 +37,7 @@ export class StatsService {
     type MonthlyRow = { month: string; masuk: string; keluar: string };
     const raw = await this.lettersRepo
       .createQueryBuilder('letter')
-      .select("LEFT(letter.tanggalSurat, 7)", 'month')
+      .select('LEFT(letter.tanggalSurat, 7)', 'month')
       .addSelect(
         "SUM(CASE WHEN letter.jenisSurat = 'MASUK' THEN 1 ELSE 0 END)",
         'masuk',
@@ -46,7 +46,7 @@ export class StatsService {
         "SUM(CASE WHEN letter.jenisSurat = 'KELUAR' THEN 1 ELSE 0 END)",
         'keluar',
       )
-      .where("letter.tanggalSurat IS NOT NULL")
+      .where('letter.tanggalSurat IS NOT NULL')
       .andWhere("letter.tanggalSurat != ''")
       .groupBy('month')
       .orderBy('month', 'DESC')
@@ -93,13 +93,13 @@ export class StatsService {
     const rows = await this.lettersRepo
       .createQueryBuilder('letter')
       .leftJoin(UploadedFile, 'file', 'file.id = letter.fileId')
-      .select("LEFT(letter.tanggalSurat, 7)", 'month')
+      .select('LEFT(letter.tanggalSurat, 7)', 'month')
       .addSelect('file.filePath', 'filePath')
-      .where("letter.tanggalSurat IS NOT NULL")
+      .where('letter.tanggalSurat IS NOT NULL')
       .andWhere("letter.tanggalSurat != ''")
-      .andWhere("letter.fileId IS NOT NULL")
+      .andWhere('letter.fileId IS NOT NULL')
       .andWhere("letter.fileId != ''")
-      .andWhere("LEFT(letter.tanggalSurat, 7) IN (:...months)", { months })
+      .andWhere('LEFT(letter.tanggalSurat, 7) IN (:...months)', { months })
       .getRawMany<MonthlyStorageRow>();
 
     const filePaths = Array.from(

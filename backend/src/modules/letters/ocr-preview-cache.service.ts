@@ -22,7 +22,7 @@ export class OcrPreviewCacheService {
     updateAgeOnGet: true, // Refresh TTL saat diakses
     updateAgeOnHas: true,
     // Cleanup function untuk memastikan expired entries dihapus
-    dispose: (value, key) => {
+    dispose: () => {
       // Optional: log cleanup untuk monitoring
     },
   });
@@ -46,7 +46,12 @@ export class OcrPreviewCacheService {
   makeKey(parts: Record<string, unknown>) {
     return Object.entries(parts)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => `${k}=${String(v ?? '')}`)
+      .map(([k, v]) => {
+        if (v === null || v === undefined) return `${k}=`;
+        if (typeof v === 'object') return `${k}=${JSON.stringify(v)}`;
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        return `${k}=${String(v)}`;
+      })
       .join('&');
   }
 
@@ -70,4 +75,3 @@ export class OcrPreviewCacheService {
     this.cache.clear();
   }
 }
-

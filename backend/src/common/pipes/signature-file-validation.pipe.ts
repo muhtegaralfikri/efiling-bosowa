@@ -49,7 +49,8 @@ export class SignatureFileValidationPipe implements PipeTransform {
   }
 
   private validateMagicBytes(file: Express.Multer.File): boolean {
-    const signatures = MAGIC_BYTES[file.mimetype as (typeof ALLOWED_MIME_TYPES)[number]];
+    const signatures =
+      MAGIC_BYTES[file.mimetype as (typeof ALLOWED_MIME_TYPES)[number]];
     if (!signatures) return true;
 
     let buffer: Buffer;
@@ -73,4 +74,3 @@ export class SignatureFileValidationPipe implements PipeTransform {
     );
   }
 }
-

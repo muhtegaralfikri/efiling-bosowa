@@ -30,7 +30,9 @@ export class UsersController {
     // Allow non-admin clients to list only MANAJEMEN users (for tagging signature requests).
     // Admin can list all roles.
     if (req.user?.role !== UserRole.ADMIN && role !== UserRole.MANAJEMEN) {
-      throw new ForbiddenException('Anda tidak memiliki akses untuk melihat daftar user');
+      throw new ForbiddenException(
+        'Anda tidak memiliki akses untuk melihat daftar user',
+      );
     }
     return this.usersService.findAll(role);
   }

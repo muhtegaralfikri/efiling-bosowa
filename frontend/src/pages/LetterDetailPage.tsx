@@ -86,7 +86,21 @@ export default function LetterDetailPage() {
     URL.revokeObjectURL(blobUrl);
   };
 
-  const openBlobInNewTab = (blob: Blob) => {
+  const openBlobInNewTab = (blob: Blob, filename = 'document.pdf') => {
+    // For mobile, download instead of opening new tab (blob URLs don't work well on mobile)
+    if (isMobileDevice()) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Revoke after delay
+      setTimeout(() => URL.revokeObjectURL(a.href), 30_000);
+      return;
+    }
+
+    // Desktop: open in new tab
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl, '_blank', 'noopener,noreferrer');
     // Delay revoke a bit so new tab can load it
@@ -103,7 +117,8 @@ export default function LetterDetailPage() {
   const openLetterPdfInNewTab = async (letterId: string) => {
     const resp = await api.get(`/letters/${letterId}/download-pdf`, { responseType: 'blob' });
     const pdfBlob = new Blob([resp.data], { type: 'application/pdf' });
-    openBlobInNewTab(pdfBlob);
+    const safeName = (letter?.letterNumber || 'document').replace(/[^a-zA-Z0-9-_]/g, '_');
+    openBlobInNewTab(pdfBlob, `${safeName}.pdf`);
   };
 
   const downloadSignedPdf = async (filename: string, downloadName?: string) => {
@@ -118,8 +133,8 @@ export default function LetterDetailPage() {
   const pdfPreviewFileId = useMemo(() => {
     if (isMobile) return null;
     if (!letter?.fileUrl?.toLowerCase().endsWith('.pdf')) return null;
-    return (letter as any)?.fileId as string | null;
-  }, [isMobile, letter?.fileUrl, (letter as any)?.fileId]);
+    return letter.fileId ?? null;
+  }, [isMobile, letter]);
 
   // Fetch PDF as Blob to bypass IDM (desktop only)
   useEffect(() => {
@@ -230,8 +245,8 @@ export default function LetterDetailPage() {
 
     // Determine if we need to use the POST endpoint for signed files (IDM bypass)
     const isSignedFile = path.includes('/uploads/signed/');
-    let fullUrl = getImageUrl(path);
-    
+    const fullUrl = getImageUrl(path);
+
     if (type === 'pdf' || isSignedFile) {
       try {
         const toastId = toast.loading('Memuat preview dokumen...');
@@ -244,7 +259,7 @@ export default function LetterDetailPage() {
            blob = new Blob([resp.data], { type: 'application/pdf' });
         } else {
            // For PDFs, prefer the streaming endpoint (avoids IDM, and now requires auth)
-           const fileId = (letter as any)?.fileId;
+           const fileId = letter?.fileId;
            if (fileId) {
              const resp = await api.get(`/letters/pdf-preview/${fileId}`, { responseType: 'blob' });
              blob = new Blob([resp.data], { type: 'application/pdf' });
@@ -404,7 +419,7 @@ export default function LetterDetailPage() {
                 Unit Bisnis
                 <select
                   value={form.unitBisnis || ''}
-                  onChange={(e) => setForm({ ...form, unitBisnis: e.target.value as any })}
+                  onChange={(e) => setForm({ ...form, unitBisnis: e.target.value as Letter['unitBisnis'] })}
                   disabled
                 >
                   <option value="BOSOWA_TAXI">Bosowa Taxi</option>

@@ -44,7 +44,8 @@ export class SignatureRequestsService {
     letter: Letter,
     user: { role: UserRole; unitBisnis?: UnitBisnis | null },
   ) {
-    if (user.role === UserRole.ADMIN || user.role === UserRole.MANAJEMEN) return;
+    if (user.role === UserRole.ADMIN || user.role === UserRole.MANAJEMEN)
+      return;
     if (
       user.role === UserRole.USER &&
       user.unitBisnis &&
@@ -66,7 +67,10 @@ export class SignatureRequestsService {
       return request;
     }
 
-    if (request.requestedBy === user.userId || request.assignedTo === user.userId) {
+    if (
+      request.requestedBy === user.userId ||
+      request.assignedTo === user.userId
+    ) {
       return request;
     }
 
@@ -87,7 +91,9 @@ export class SignatureRequestsService {
     user: { userId: string; role: UserRole; unitBisnis?: UnitBisnis | null },
     dto: CreateSignatureRequestDto,
   ): Promise<SignatureRequest[]> {
-    const letter = await this.letterRepo.findOne({ where: { id: dto.letterId } });
+    const letter = await this.letterRepo.findOne({
+      where: { id: dto.letterId },
+    });
     if (!letter) throw new NotFoundException('Letter not found');
     this.assertCanAccessLetter(letter, user);
     return this.create(user.userId, dto);
@@ -151,7 +157,7 @@ export class SignatureRequestsService {
         order: { createdAt: 'DESC' },
       });
     } catch (error) {
-      this.logger.error('findAll error', error as any);
+      this.logger.error('findAll error', error);
       return [];
     }
   }
@@ -164,7 +170,7 @@ export class SignatureRequestsService {
         order: { createdAt: 'DESC' },
       });
     } catch (error) {
-      this.logger.error('findPendingForUser error', error as any);
+      this.logger.error('findPendingForUser error', error);
       return [];
     }
   }
@@ -232,7 +238,7 @@ export class SignatureRequestsService {
             saved.id,
           );
         } catch (err) {
-          this.logger.error('Failed to create notification', err as any);
+          this.logger.error('Failed to create notification', err);
         }
       }
     }
@@ -270,10 +276,12 @@ export class SignatureRequestsService {
     const posX = dto.positionX ?? request.positionX ?? 50;
     const posY = dto.positionY ?? request.positionY ?? 50;
 
-    const documentPath = this.normalizeUploadsPath(request.letter.fileUrl || '');
+    const documentPath = this.normalizeUploadsPath(
+      request.letter.fileUrl || '',
+    );
 
     const scale = dto.scale ?? 100;
-    
+
     // Check if there's already a signed document for this letter
     const existingSignedPath = await this.getSharedSignedPath(request.letterId);
     const signedImagePath = await this.embedSignature(
@@ -327,7 +335,7 @@ export class SignatureRequestsService {
   async getSharedSignedPath(letterId: string): Promise<string | null> {
     const letter = await this.letterRepo.findOne({ where: { id: letterId } });
     if (!letter) return null;
-    
+
     const outputDir = path.join(process.cwd(), 'uploads', 'signed');
     let baseName = '';
     if (letter.fileUrl) {
@@ -339,7 +347,7 @@ export class SignatureRequestsService {
     }
     const outputFilename = `signed-${letterId}-${baseName || 'document'}`;
     const outputPath = path.join(outputDir, outputFilename);
-    
+
     if (fs.existsSync(outputPath)) {
       return `/uploads/signed/${outputFilename}`;
     }
@@ -405,17 +413,19 @@ export class SignatureRequestsService {
     // Handle PDF files
     if (documentPath.toLowerCase().endsWith('.pdf')) {
       const { PDFDocument } = await import('pdf-lib');
-      
+
       // Check if signed document already exists
       let pdfDoc: any;
       let pages: any;
-      
+
       if (fs.existsSync(outputPath) && existingSignedPath) {
         // Load existing signed document and add new signature
         const signedPdfBuffer = fs.readFileSync(outputPath);
         pdfDoc = await PDFDocument.load(signedPdfBuffer);
         pages = pdfDoc.getPages();
-        this.logger.log(`Adding signature to existing signed document: ${outputFilename}`);
+        this.logger.log(
+          `Adding signature to existing signed document: ${outputFilename}`,
+        );
       } else {
         // Create new signed document
         const pdfBuffer = fs.readFileSync(docFullPath);
@@ -423,7 +433,7 @@ export class SignatureRequestsService {
         pages = pdfDoc.getPages();
         this.logger.log(`Creating new signed document: ${outputFilename}`);
       }
-      
+
       const page = pages[0];
       const { width, height } = page.getSize();
 
@@ -436,7 +446,7 @@ export class SignatureRequestsService {
       const sigDims = sigImage.scale(scaleFactor);
 
       const x = (posX / 100) * width - sigDims.width / 2;
-      const y = height - ((posY / 100) * height) - sigDims.height / 2;
+      const y = height - (posY / 100) * height - sigDims.height / 2;
 
       page.drawImage(sigImage, {
         x,
@@ -447,14 +457,14 @@ export class SignatureRequestsService {
 
       const pdfBytes = await pdfDoc.save();
       await fsp.writeFile(outputPath, pdfBytes);
-      
+
       return `/uploads/signed/${outputFilename}`;
     }
 
     // Handle Image files -> Convert to PDF
     let docImage;
     let docMetadata;
-    
+
     // Check if there's an existing signed document to use as base
     if (fs.existsSync(outputPath) && existingSignedPath) {
       // Use the existing signed document as base
@@ -464,14 +474,14 @@ export class SignatureRequestsService {
       const existingPdfDoc = await PDFDocument.load(existingPdfBuffer);
       const existingPages = existingPdfDoc.getPages();
       const existingPage = existingPages[0];
-      
+
       // Extract the image from the existing PDF
       const existingImageWidth = existingPage.getWidth();
       const existingImageHeight = existingPage.getHeight();
-      
+
       // Create a new PDF document with the existing page content
       docMetadata = { width: existingImageWidth, height: existingImageHeight };
-      
+
       // For simplicity, we'll convert the PDF back to an image, add signature, then back to PDF
       // In a production environment, you might want a more efficient approach
       docImage = sharp(docFullPath); // Use original document as base
@@ -480,9 +490,9 @@ export class SignatureRequestsService {
       docMetadata = await docImage.metadata();
     }
 
-    const BASE_RATIO = 0.2; 
-    const aspectRatio = 2 / 1; 
-    
+    const BASE_RATIO = 0.2;
+    const aspectRatio = 2 / 1;
+
     const docWidth = docMetadata.width || 800;
     const baseWidth = Math.round(docWidth * BASE_RATIO);
     const baseHeight = Math.round(baseWidth / aspectRatio);
@@ -491,7 +501,7 @@ export class SignatureRequestsService {
 
     const signatureBuffer = await sharp(sigFullPath)
       .resize({ width: sigWidth, height: sigHeight, fit: 'inside' })
-      .png() 
+      .png()
       .toBuffer();
 
     const x = Math.round(
@@ -502,8 +512,12 @@ export class SignatureRequestsService {
     );
 
     let finalImageBuffer;
-    
-    if (fs.existsSync(outputPath) && existingSignedPath && existingSignedPath.toLowerCase().endsWith('.pdf')) {
+
+    if (
+      fs.existsSync(outputPath) &&
+      existingSignedPath &&
+      existingSignedPath.toLowerCase().endsWith('.pdf')
+    ) {
       // If we have an existing PDF, we need to work with it directly
       const { PDFDocument } = await import('pdf-lib');
       const existingPdfPath = this.resolveUploadsDiskPath(existingSignedPath);
@@ -511,28 +525,28 @@ export class SignatureRequestsService {
       const pdfDoc = await PDFDocument.load(existingPdfBuffer);
       const pages = pdfDoc.getPages();
       const page = pages[0];
-      
+
       const sigPngBuffer = await sharp(sigFullPath).png().toBuffer();
       const sigImage = await pdfDoc.embedPng(sigPngBuffer);
-      
+
       const { width, height } = page.getSize();
       const targetWidth = width * BASE_RATIO * (scale / 100);
       const scaleFactor = targetWidth / sigImage.width;
       const sigDims = sigImage.scale(scaleFactor);
-      
+
       const pdfX = (posX / 100) * width - sigDims.width / 2;
-      const pdfY = height - ((posY / 100) * height) - sigDims.height / 2;
-      
+      const pdfY = height - (posY / 100) * height - sigDims.height / 2;
+
       page.drawImage(sigImage, {
         x: pdfX,
         y: pdfY,
         width: sigDims.width,
         height: sigDims.height,
       });
-      
+
       const pdfBytes = await pdfDoc.save();
       await fsp.writeFile(outputPath, pdfBytes);
-      
+
       return `/uploads/signed/${outputFilename}`;
     } else {
       // Composite signature onto image
@@ -553,7 +567,7 @@ export class SignatureRequestsService {
     const pdfDoc = await PDFDocument.create();
     const imageEmbed = await pdfDoc.embedPng(finalImageBuffer);
     const page = pdfDoc.addPage([imageEmbed.width, imageEmbed.height]);
-    
+
     page.drawImage(imageEmbed, {
       x: 0,
       y: 0,
@@ -562,9 +576,12 @@ export class SignatureRequestsService {
     });
 
     // Save as PDF
-    const pdfOutputFilename = outputFilename.replace(path.extname(outputFilename), '.pdf');
+    const pdfOutputFilename = outputFilename.replace(
+      path.extname(outputFilename),
+      '.pdf',
+    );
     const pdfOutputPath = path.join(outputDir, pdfOutputFilename);
-    
+
     const pdfBytes = await pdfDoc.save();
     await fsp.writeFile(pdfOutputPath, pdfBytes);
 

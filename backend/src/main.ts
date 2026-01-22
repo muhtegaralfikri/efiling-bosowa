@@ -7,12 +7,11 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from './app.module';
-import * as winston from 'winston';
 
 async function bootstrap() {
   // Configure environment-based settings
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     // Default logging for development, minimal for production
@@ -21,11 +20,11 @@ async function bootstrap() {
 
   // Use Winston as the default logger
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  
+
   if (isProduction) {
     logger.log('Production mode: Minimal logging enabled');
   }
-  
+
   app.useLogger(logger);
 
   // Security Headers

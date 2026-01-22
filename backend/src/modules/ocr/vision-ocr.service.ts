@@ -12,7 +12,6 @@ export class VisionOcrService {
     const credentialsPath = this.configService.get<string>(
       'GOOGLE_APPLICATION_CREDENTIALS',
     );
-    
 
     // Only use service account credentials (more reliable)
     try {
@@ -67,8 +66,9 @@ export class VisionOcrService {
 
       this.logger.log(`Vision API extracted ${fullText.length} characters`);
       return fullText;
-    } catch (error: any) {
-      this.logger.error('Vision API OCR failed', error?.message || error);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Vision API OCR failed', message);
       throw error;
     }
   }
@@ -99,11 +99,9 @@ export class VisionOcrService {
         `Vision API (document mode) extracted ${fullText.length} characters`,
       );
       return fullText;
-    } catch (error: any) {
-      this.logger.error(
-        'Vision API document OCR failed',
-        error?.message || error,
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Vision API document OCR failed', message);
       throw error;
     }
   }
@@ -120,11 +118,9 @@ export class VisionOcrService {
 
       const fullText = result.fullTextAnnotation?.text || '';
       return fullText;
-    } catch (error: any) {
-      this.logger.error(
-        'Vision API document OCR (buffer) failed',
-        error?.message || error,
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Vision API document OCR (buffer) failed', message);
       throw error;
     }
   }
