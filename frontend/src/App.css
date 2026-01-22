@@ -1829,6 +1829,9 @@ button.mobile-menu-link {
   border-radius: 16px;
   width: 100%;
   max-width: 420px;
+  max-height: 90vh; /* Prevent modal from exceeding screen height */
+  display: flex; /* Flex layout to handle header/body/footer */
+  flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -1838,18 +1841,18 @@ button.mobile-menu-link {
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0; /* Keep header visible */
 }
 
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
+/* ... existing .modal-header h2 ... */
 
 .modal-body {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  overflow-y: auto; /* Enable internal scrolling */
+  flex: 1; /* Take remaining height */
 }
 
 .modal-body label {
