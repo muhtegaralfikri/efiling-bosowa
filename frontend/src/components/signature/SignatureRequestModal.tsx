@@ -736,11 +736,28 @@ export default function SignatureRequestModal({
             .modal-footer {
               padding: 1rem 1.25rem;
               padding-bottom: max(1rem, env(safe-area-inset-bottom));
+              flex-direction: column;
+              gap: 1rem;
+              align-items: stretch;
             }
 
-            /* Stack specific footers for Step 1 vs Step 2 if needed, 
-               but default layout usually works well with flex row even on mobile for these buttons 
-            */
+            .selected-summary {
+              text-align: center;
+              padding-bottom: 0.75rem;
+              border-bottom: 1px solid var(--border-light);
+            }
+
+            .footer-actions {
+              display: grid;
+              grid-template-columns: 1fr 1.5fr;
+              gap: 0.75rem;
+              width: 100%;
+            }
+
+            .btn-submit, .btn-cancel, .btn-back {
+              justify-content: center;
+              width: 100%;
+            }
           }
         `}</style>
       </div>
