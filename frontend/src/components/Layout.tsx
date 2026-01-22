@@ -73,14 +73,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="sidebar-header">
           <img src={logo} alt="Bosowa Bandar Agensi" className="sidebar-logo" />
           <div className="sidebar-header-actions">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="sidebar-header-btn"
-              title={theme === 'light' ? 'Mode Gelap' : 'Mode Terang'}
-            >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
+
             <NotificationBell />
           </div>
         </div>
@@ -104,17 +97,28 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="sidebar-footer">
           {user && (
             <div className="sidebar-user">
-              <div className="sidebar-user-info">
-                <span className="sidebar-username">{user.username}</span>
-                <span className="sidebar-role">{user.role}</span>
+              <div className="sidebar-user-header">
+                <div className="sidebar-user-info">
+                  <span className="sidebar-username">{user.username}</span>
+                  <span className="sidebar-role">{user.role}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="sidebar-theme-btn"
+                  title={theme === 'light' ? 'Mode Gelap' : 'Mode Terang'}
+                >
+                  {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                </button>
               </div>
+              
               <button
                 type="button"
                 onClick={logout}
                 className="sidebar-logout"
                 title="Keluar"
               >
-                <LogOut size={20} />
+                <LogOut size={18} />
                 <span>Keluar</span>
               </button>
             </div>
