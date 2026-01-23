@@ -24,6 +24,7 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', { username, password });
       const { accessToken, refreshToken, user } = res.data;
       login({
+        id: user.id,
         username: user.username,
         role: user.role,
         unitBisnis: user.unitBisnis,

@@ -385,6 +385,20 @@ export class SignatureRequestsService {
     return saved;
   }
 
+  async cancel(id: string, userId: string): Promise<void> {
+    const request = await this.findOne(id);
+
+    if (request.requestedBy !== userId) {
+      throw new ForbiddenException('You can only cancel your own requests');
+    }
+
+    if (request.status !== SignatureRequestStatus.PENDING) {
+      throw new BadRequestException('Only pending requests can be cancelled');
+    }
+
+    await this.requestRepo.delete(id);
+  }
+
   private async embedSignature(
     documentPath: string,
     signaturePath: string,

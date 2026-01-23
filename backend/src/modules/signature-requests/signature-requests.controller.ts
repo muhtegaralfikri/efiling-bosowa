@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   Request,
+  Delete,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -82,6 +83,11 @@ export class SignatureRequestsController {
     @Body('notes') notes?: string,
   ) {
     return this.requestsService.reject(id, req.user.userId, notes);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    return this.requestsService.cancel(id, req.user.userId);
   }
 
   @Get('shared-signed/:letterId')

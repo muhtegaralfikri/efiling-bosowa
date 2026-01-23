@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Pencil, X, Save, FileSignature, Check, Clock, Eye, Download, ZoomIn, ZoomOut } from 'lucide-react';
+import { Pencil, X, Save, FileSignature, Check, Clock, Eye, Download, ZoomIn, ZoomOut, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import api from '../api/client';
 import type { Letter, SignatureRequest } from '../api/types';
-import { getSignatureRequestsByLetter } from '../api/signatures';
+import { getSignatureRequestsByLetter, cancelSignatureRequest } from '../api/signatures';
 import SignatureRequestModal from '../components/signature/SignatureRequestModal';
 import { useAuth } from '../context/AuthContext';
 
@@ -39,6 +39,20 @@ const groupSignatureRequests = (requests: SignatureRequest[]) => {
   return Object.values(groups);
 };
 
+const getUserIdFromToken = (token?: string) => {
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload).sub;
+  } catch (e) {
+    return null;
+  }
+};
+
 export default function LetterDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -64,6 +78,18 @@ export default function LetterDetailPage() {
     () => groupSignatureRequests(signatureRequests),
     [signatureRequests],
   );
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelSignatureRequest,
+    onSuccess: () => {
+      toast.success('Permintaan tanda tangan dibatalkan');
+      queryClient.invalidateQueries({ queryKey: ['signature-requests', id] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || 'Gagal membatalkan permintaan';
+      toast.error(msg);
+    },
+  });
 
   const downloadBlob = (blob: Blob, filename: string) => {
     const blobUrl = URL.createObjectURL(blob);
@@ -599,9 +625,28 @@ export default function LetterDetailPage() {
                                   Ditolak
                                 </span>
                               ) : (
-                                <span className="status-text warning">
-                                  Menunggu tanda tangan
-                                </span>
+                                <div className="signer-actions">
+                                  <span className="status-text warning">
+                                    Menunggu tanda tangan
+                                    {/* Debug Info */}
+                                    {/* <span style={{fontSize: '10px', color: 'gray'}}>
+                                      {user?.id} vs {req.requestedBy}
+                                    </span> */}
+                                  </span>
+                                  {user && (req.requestedBy === (user.id || getUserIdFromToken(user.token))) && (
+                                    <button 
+                                      className="cancel-req-btn"
+                                      onClick={() => {
+                                        if (confirm('Batalkan permintaan tanda tangan ini?')) {
+                                          cancelMutation.mutate(req.id);
+                                        }
+                                      }}
+                                      title="Batalkan Permintaan"
+                                    >
+                                      <Trash2 size={14} /> Batalkan
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -934,26 +979,31 @@ export default function LetterDetailPage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.625rem;
+          gap: 0.5rem;
           padding: 0.625rem 1.25rem;
           border-radius: 12px;
           font-size: 0.875rem;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: 1px solid transparent;
           font-family: 'Sora', sans-serif;
+          position: relative;
+          overflow: hidden;
         }
 
         .action-btn.view {
-          background: var(--accent-primary);
-          color: white;
-          box-shadow: 0 4px 6px rgba(var(--accent-rgb), 0.25);
+          /* Force bright blue gradient */
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+          border: 1px solid rgba(255,255,255,0.1);
         }
         .action-btn.view:hover {
-          background: var(--accent-hover);
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
           transform: translateY(-2px);
-          box-shadow: 0 6px 12px rgba(var(--accent-rgb), 0.3);
+          box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+          filter: brightness(1.1);
         }
         .action-btn.view:active {
           transform: translateY(0);
@@ -961,42 +1011,44 @@ export default function LetterDetailPage() {
 
         .action-btn.download {
           background: white;
-          border-color: var(--border-color);
-          color: var(--text-secondary);
+          border: 1px solid #e5e7eb;
+          color: #374151;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .action-btn.download:hover {
-          background: var(--bg-secondary);
-          color: var(--text-primary);
-          border-color: var(--border-hover);
+          background: #f9fafb;
+          color: #111827;
+          border-color: #d1d5db;
           transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-
-        
         html.dark .action-btn.download {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 1); /* slate-800 solid */
+            border-color: rgba(255, 255, 255, 0.2);
             color: #e5e7eb;
         }
         html.dark .action-btn.download:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: white;
             color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
+
+        /* Status colors enhancement */
         html.dark .group-header {
              background: linear-gradient(to right, rgba(255, 255, 255, 0.03), transparent);
         }
         html.dark .icon-circle.success { 
-          background: rgba(5, 150, 105, 0.2);
-          box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+          background: rgba(5, 150, 105, 0.15);
+          box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.05);
         }
         html.dark .icon-circle.error { 
-          background: rgba(220, 38, 38, 0.2); 
-          box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+          background: rgba(220, 38, 38, 0.15); 
+          box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.05);
         }
         html.dark .icon-circle.warning { 
-          background: rgba(217, 119, 6, 0.2);
-          box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.1);
+          background: rgba(217, 119, 6, 0.15);
+          box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.05);
         }
 
         /* Mobile Responsive */
@@ -1250,23 +1302,72 @@ export default function LetterDetailPage() {
         
         .pdf-download-btn {
           background: white;
-          color: var(--text-primary);
-          border: 2px solid var(--border-color);
+          color: #374151;
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .pdf-download-btn:hover {
-          background: var(--bg-hover);
-          border-color: var(--text-secondary);
+          background: #f9fafb;
+          border-color: #d1d5db;
+          color: #111827;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
 
         html.dark .pdf-download-btn {
-           background: rgba(255, 255, 255, 0.05);
-           border-color: rgba(255, 255, 255, 0.1);
+           background: rgba(30, 41, 59, 1);
+           border-color: rgba(255, 255, 255, 0.2);
            color: #e5e7eb;
         }
         html.dark .pdf-download-btn:hover {
-           background: rgba(255, 255, 255, 0.1);
+           border-color: white;
            color: white;
+           box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .signer-actions {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .cancel-req-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.25rem 0.5rem;
+          background: #fee2e2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.75rem;
+          font-weight: 600;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        
+        .cancel-req-btn:hover {
+          background: #fecaca;
+        }
+
+        @media (max-width: 640px) {
+          .signer-actions {
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+          }
+          
+          .cancel-req-btn {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+          }
+          
+          .signer-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+          }
         }
       `}</style>
     </section>
