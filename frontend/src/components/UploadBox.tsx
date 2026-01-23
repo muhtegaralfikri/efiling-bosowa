@@ -185,24 +185,28 @@ export default function UploadBox({ onFileSelected, onOpenCamera }: Props) {
           align-items: center;
           gap: 0.625rem;
           padding: 0.75rem 1.5rem;
-          background: white;
-          border: 1px solid var(--border-color);
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          border: none;
           border-radius: 12px;
-          color: var(--text-primary);
+          color: white;
           font-weight: 600;
           font-size: 0.875rem;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           margin-top: 0.5rem;
           font-family: 'Sora', sans-serif;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
         }
 
         .camera-btn:hover {
-          background: var(--bg-hover);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          border-color: var(--text-secondary);
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.45);
+        }
+
+        .camera-btn:active {
+          transform: translateY(-1px) scale(0.98);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
         html.dark .upload-box {
@@ -226,15 +230,15 @@ export default function UploadBox({ onFileSelected, onOpenCamera }: Props) {
         }
 
         html.dark .camera-btn {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.1);
-          color: #e5e7eb;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          border: none;
+          color: white;
+          box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
         }
 
         html.dark .camera-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.2);
-          color: white;
+          background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+          box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
         }
 
         /* Mobile Responsive */
