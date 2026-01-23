@@ -722,6 +722,10 @@ export default function UploadPage() {
           flex-direction: column;
           gap: 1rem;
           height: fit-content;
+          /* Fix for mobile - prevent overflow */
+          overflow: hidden;
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .actions-card h3 {
@@ -742,9 +746,21 @@ export default function UploadPage() {
           border-radius: 8px;
           font-size: 0.75rem;
           max-height: 200px;
-          overflow: auto;
+          overflow-y: auto;
           white-space: pre-wrap;
+          word-break: break-word; /* Ensure long words wrap */
           border: 1px solid var(--border-color);
+          /* Fix for mobile - prevent overflow */
+          width: 100%;
+          box-sizing: border-box;
+          overflow-x: hidden;
+        }
+
+        .raw-text-viewer pre {
+          margin: 0;
+          width: 100%;
+          box-sizing: border-box;
+          overflow-wrap: break-word;
         }
 
         .icon-btn {
@@ -785,6 +801,26 @@ export default function UploadPage() {
           .upload-panel {
             padding: 1.5rem;
           }
+          /* Fix success banner for mobile */
+          .success-banner {
+            padding: 1rem;
+            gap: 1rem;
+          }
+          .icon-circle.success {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+          }
+          .icon-circle.success svg {
+            width: 20px;
+            height: 20px;
+          }
+          .success-banner h2 {
+            font-size: 1.125rem;
+          }
+          .success-banner p {
+            font-size: 0.875rem;
+          }
         }
         
         @media (max-width: 640px) {
@@ -816,6 +852,43 @@ export default function UploadPage() {
           }
           .primary-btn.lg {
             width: 100%;
+          }
+          /* Fix Actions Card Overflow */
+          .actions-card {
+            padding: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .primary-btn span {
+             white-space: normal; /* Allow text wrap in button */
+             text-align: center;
+          }
+          /* Fix success banner for small mobile */
+          .success-banner {
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 0.875rem;
+            gap: 0.75rem;
+          }
+          .icon-circle.success {
+            width: 36px;
+            height: 36px;
+          }
+          .icon-circle.success svg {
+            width: 18px;
+            height: 18px;
+          }
+          .success-banner h2 {
+            font-size: 1rem;
+          }
+          .success-banner p {
+            font-size: 0.8rem;
+          }
+          /* Fix raw text viewer for small mobile */
+          .raw-text-viewer {
+            font-size: 0.7rem;
+            padding: 0.75rem;
+            max-height: 150px;
           }
         }
       `}</style>
