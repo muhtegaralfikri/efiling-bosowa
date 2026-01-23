@@ -440,11 +440,13 @@ export class SignatureRequestsService {
       const sigPngBuffer = await sharp(sigFullPath).png().toBuffer();
       const sigImage = await pdfDoc.embedPng(sigPngBuffer);
 
-      const BASE_RATIO = 0.2;
-      const targetWidth = width * BASE_RATIO * (scale / 100);
-      const scaleFactor = targetWidth / sigImage.width;
+      // Use proportional size as baseline: 25% of document width at scale 100
+      // This gives a reasonable default size that can be adjusted by frontend scale
+      const baseWidth = width * 0.25;
+      const scaleFactor = (baseWidth / sigImage.width) * (scale / 100);
       const sigDims = sigImage.scale(scaleFactor);
 
+      // Position: use center anchor to match frontend CSS transform: translate(-50%, -50%)
       const x = (posX / 100) * width - sigDims.width / 2;
       const y = height - (posY / 100) * height - sigDims.height / 2;
 
@@ -490,23 +492,24 @@ export class SignatureRequestsService {
       docMetadata = await docImage.metadata();
     }
 
-    const BASE_RATIO = 0.2;
-    const aspectRatio = 2 / 1;
+    // Get original signature dimensions for scaling
+    const sigMetadata = await sharp(sigFullPath).metadata();
 
+    // Use proportional size as baseline: 25% of document width at scale 100
     const docWidth = docMetadata.width || 800;
-    const baseWidth = Math.round(docWidth * BASE_RATIO);
-    const baseHeight = Math.round(baseWidth / aspectRatio);
-    const sigWidth = Math.round(baseWidth * (scale / 100));
-    const sigHeight = Math.round(baseHeight * (scale / 100));
+    const baseWidth = docWidth * 0.25;
+    const scaleFactor =
+      (baseWidth / (sigMetadata.width || 200)) * (scale / 100);
+    const sigWidth = Math.round((sigMetadata.width || 200) * scaleFactor);
+    const sigHeight = Math.round((sigMetadata.height || 100) * scaleFactor);
 
     const signatureBuffer = await sharp(sigFullPath)
       .resize({ width: sigWidth, height: sigHeight, fit: 'inside' })
       .png()
       .toBuffer();
 
-    const x = Math.round(
-      (posX / 100) * (docMetadata.width || 800) - sigWidth / 2,
-    );
+    // Position: use center anchor to match frontend CSS transform: translate(-50%, -50%)
+    const x = Math.round((posX / 100) * docWidth - sigWidth / 2);
     const y = Math.round(
       (posY / 100) * (docMetadata.height || 600) - sigHeight / 2,
     );
@@ -530,10 +533,13 @@ export class SignatureRequestsService {
       const sigImage = await pdfDoc.embedPng(sigPngBuffer);
 
       const { width, height } = page.getSize();
-      const targetWidth = width * BASE_RATIO * (scale / 100);
-      const scaleFactor = targetWidth / sigImage.width;
+
+      // Use proportional size as baseline: 25% of document width at scale 100
+      const baseWidth = width * 0.25;
+      const scaleFactor = (baseWidth / sigImage.width) * (scale / 100);
       const sigDims = sigImage.scale(scaleFactor);
 
+      // Position: use center anchor to match frontend CSS transform: translate(-50%, -50%)
       const pdfX = (posX / 100) * width - sigDims.width / 2;
       const pdfY = height - (posY / 100) * height - sigDims.height / 2;
 
