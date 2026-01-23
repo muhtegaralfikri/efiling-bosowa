@@ -35,6 +35,13 @@ export class SignaturesService {
     return signature;
   }
 
+  /**
+   * Find signature by ID without user ownership check (for internal use)
+   */
+  async findOneById(id: string): Promise<Signature | null> {
+    return this.signatureRepo.findOne({ where: { id } });
+  }
+
   async findDefaultByUser(userId: string): Promise<Signature | null> {
     return this.signatureRepo.findOne({
       where: { userId, isDefault: true },

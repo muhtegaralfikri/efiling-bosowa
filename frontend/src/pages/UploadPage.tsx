@@ -205,7 +205,7 @@ export default function UploadPage() {
                   <span>{fileLabel}</span>
                 </div>
                 <button
-                  className="primary-btn lg"
+                  className="gradient-action-btn lg"
                   onClick={handleUpload}
                   disabled={!preparedFile}
                 >
@@ -285,14 +285,14 @@ export default function UploadPage() {
                 <div className="actions-card">
                   <h3>Langkah Selanjutnya</h3>
                   <button
-                    className="primary-btn full"
+                    className="gradient-action-btn full"
                     onClick={() =>
                       navigate('/letters/new', {
                         state: { ocrResult, originalMeta, ocrMeta },
                       })
                     }
                   >
-                    <span>Buat Surat dari Data Ini</span>
+                    <span>Buat Surat</span>
                     <ArrowRight size={18} />
                   </button>
                   

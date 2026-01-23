@@ -549,6 +549,53 @@ p,
   background: linear-gradient(120deg, #0d4da6, #1764b7);
 }
 
+/* Vibrant action button style (from camera-btn) */
+.gradient-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Sora', sans-serif;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.gradient-action-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.45);
+}
+
+.gradient-action-btn:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.gradient-action-btn:disabled {
+  background: #cbd5e1;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .gradient-action-btn {
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+}
+
+[data-theme="dark"] .gradient-action-btn:hover {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+
 .form-grid {
   display: grid;
   gap: 0.75rem;

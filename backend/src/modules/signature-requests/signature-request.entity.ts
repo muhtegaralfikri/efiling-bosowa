@@ -63,6 +63,12 @@ export class SignatureRequest {
   @Column({ type: 'int', nullable: true })
   positionPage: number | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  signatureId: string | null;
+
+  @Column({ type: 'int', nullable: true, default: 100 })
+  scale: number | null;
+
   @Column({ type: 'datetime', nullable: true })
   signedAt: Date | null;
 

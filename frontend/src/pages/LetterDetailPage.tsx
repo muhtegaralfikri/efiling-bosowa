@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Pencil, X, Save, FileSignature, Check, Clock, Eye, Download, ZoomIn, ZoomOut, Trash2 } from 'lucide-react';
+import { Pencil, X, Save, FileSignature, Check, Clock, Eye, ZoomIn, ZoomOut, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import api from '../api/client';
@@ -137,13 +137,18 @@ export default function LetterDetailPage() {
     openBlobInNewTab(pdfBlob, `${safeName}.pdf`);
   };
 
-  const downloadSignedPdf = async (filename: string, downloadName?: string) => {
-    const resp = await api.get(`/letters/signed-image-download/${filename}`, {
-      params: { downloadName },
-      responseType: 'blob',
-    });
-    const pdfBlob = new Blob([resp.data], { type: 'application/pdf' });
-    downloadBlob(pdfBlob, downloadName || filename);
+  // Download signed PDF using lazy embedding endpoint (POST to bypass IDM)
+  const downloadSignedPdf = async (letterId: string) => {
+    try {
+      const resp = await api.post(`/letters/${letterId}/signed-pdf`, {}, {
+        responseType: 'blob',
+      });
+      const pdfBlob = new Blob([resp.data], { type: 'application/pdf' });
+      const safeName = (letter?.letterNumber || 'document').replace(/[^a-zA-Z0-9-_]/g, '_');
+      downloadBlob(pdfBlob, `${safeName}_Signed.pdf`);
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Gagal mengunduh dokumen bertanda tangan');
+    }
   };
 
   const pdfPreviewFileId = useMemo(() => {
@@ -665,34 +670,15 @@ export default function LetterDetailPage() {
                     ))}
 
                     {/* Group Actions Footer */}
-                    {isAllSigned && group[0]?.signedImagePath && (
+                    {isAllSigned && (
                       <div className="group-actions">
                         <button
                           type="button"
-                          onClick={() => handleViewDocument(
-                            group[0].signedImagePath!,
-                            group[0].signedImagePath!.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'
-                          )}
+                          onClick={() => downloadSignedPdf(letter.id)}
                           className="action-btn view"
                         >
                           <Eye size={16} />
-                          <span>Lihat Dokumen</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                             const filename = group[0].signedImagePath!.split('/').pop();
-                             const downloadName = `${(letter?.letterNumber || 'document').replace(/[^a-zA-Z0-9-_]/g, '_')}_Signed.pdf`;
-                             if (!filename) {
-                               toast.error('Filename dokumen tidak valid');
-                               return;
-                             }
-                             downloadSignedPdf(filename, downloadName);
-                          }}
-                          className="action-btn download"
-                        >
-                          <Download size={16} />
-                          <span>Download</span>
+                          <span>Lihat & Download</span>
                         </button>
                       </div>
                     )}
