@@ -328,10 +328,7 @@ export default function PendingSignaturesPage() {
                 Geser TTD untuk posisi, tarik sudut kanan bawah untuk resize
               </p>
               <div className="sign-modal-actions">
-                <button className="modal-btn modal-btn-secondary" onClick={() => setSelectedRequest(null)}>
-                  <X size={18} />
-                  <span>Batal</span>
-                </button>
+
                 <button
                   className="modal-btn modal-btn-primary"
                   onClick={handleConfirmSign}
@@ -451,7 +448,7 @@ export default function PendingSignaturesPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 1000;
+          z-index: 2000;
           padding: 1rem;
         }
         .sign-modal {
