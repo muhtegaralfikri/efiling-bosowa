@@ -190,7 +190,7 @@ export default function ManualCropper({ file, onCropConfirm, onResetToOriginal }
         <button type="button" className="ghost-btn" onClick={onResetToOriginal}>
           Pakai gambar asli
         </button>
-        <button type="button" className="primary-btn" onClick={performCrop} disabled={!canCrop}>
+        <button type="button" className="gradient-action-btn" onClick={performCrop} disabled={!canCrop}>
           Gunakan hasil crop
         </button>
       </div>

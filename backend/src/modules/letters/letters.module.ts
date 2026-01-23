@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilesModule } from '../files/files.module';
 import { EditLogsModule } from '../edit-logs/edit-logs.module';
 import { OcrModule } from '../ocr/ocr.module';
+import { SignatureRequestsModule } from '../signature-requests/signature-requests.module';
 import { LettersController } from './letters.controller';
 import { LettersService } from './letters.service';
 import { Letter } from './letter.entity';
@@ -15,8 +16,11 @@ import { OcrPreviewCacheService } from './ocr-preview-cache.service';
     OcrModule,
     FilesModule,
     EditLogsModule,
+    forwardRef(() => SignatureRequestsModule),
   ],
   controllers: [LettersController],
   providers: [LettersService, OcrPreviewQueueService, OcrPreviewCacheService],
+  exports: [LettersService],
 })
 export class LettersModule {}
+

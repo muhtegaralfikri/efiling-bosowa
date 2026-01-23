@@ -27,6 +27,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedUser } from './letters.service';
 import { OcrPreviewQueueService } from './ocr-preview.queue';
 import type { UnitBisnis } from '../../common/enums/unit-bisnis.enum';
+import { SignatureRequestsService } from '../signature-requests/signature-requests.service';
 
 @Controller('letters')
 @UseGuards(JwtAuthGuard)
@@ -36,6 +37,7 @@ export class LettersController {
   constructor(
     private readonly lettersService: LettersService,
     private readonly ocrQueue: OcrPreviewQueueService,
+    private readonly signatureRequestsService: SignatureRequestsService,
   ) {}
 
   @Get(':id/download-pdf')
@@ -96,6 +98,47 @@ export class LettersController {
     } catch (e) {
       this.logger.error('PDF Conversion failed', e);
       res.status(500).send('Conversion failed');
+    }
+  }
+
+  /**
+   * Download signed PDF with all signatures embedded (lazy generation)
+   * Using POST to bypass IDM interception
+   */
+  @Post(':id/signed-pdf')
+  async downloadSignedPdf(
+    @Param('id') id: string,
+    @Req() req: ExpressRequest & { user: AuthenticatedUser },
+    @Res() res: Response,
+  ) {
+    // Verify user has access to this letter
+    const letter = await this.lettersService.findOneForUser(id, req.user);
+    if (!letter) {
+      res.status(404).send('Letter not found');
+      return;
+    }
+
+    try {
+      const { buffer, filename } =
+        await this.signatureRequestsService.getOrGenerateSignedPdf(id);
+
+      // Add CORS headers
+      const origin = req.headers.origin;
+      res.setHeader('Access-Control-Allow-Origin', origin || '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+      // Set headers for download
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
+
+      res.send(buffer);
+    } catch (e: any) {
+      this.logger.error('Signed PDF generation failed', e);
+      res.status(e.status || 500).send(e.message || 'Generation failed');
     }
   }
 
