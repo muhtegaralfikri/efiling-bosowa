@@ -7,7 +7,7 @@ interface Props {
 
 export default function CameraCapture({ onCapture, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -17,25 +17,37 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
   }, []);
 
   const startCamera = async () => {
+    setError('');
     try {
       const media = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
         audio: false,
       });
-      setStream(media);
+      
+      streamRef.current = media;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = media;
-        await videoRef.current.play();
+        try {
+          await videoRef.current.play();
+        } catch (e) {
+          console.warn('Video play failed:', e);
+          // Don't show error here as stream is active
+        }
       }
-    } catch {
+    } catch (err) {
+      console.error('Camera access failed:', err);
       setError('Kamera tidak bisa diakses. Cek izin browser.');
     }
   };
 
   const stopCamera = () => {
-    stream?.getTracks().forEach((track) => track.stop());
-    setStream(null);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
   };
+    // ... (rest of methods)
 
   const handleCapture = async () => {
     const video = videoRef.current;
@@ -65,7 +77,7 @@ export default function CameraCapture({ onCapture, onClose }: Props) {
       <div className="camera-header">
         <div>
           <p className="eyebrow">Kamera</p>
-          <h3>Ambil foto kop surat</h3>
+          <h3>Ambil foto dokumen</h3>
         </div>
         <div className="actions">
           <button type="button" className="ghost-btn" onClick={handleClose}>
