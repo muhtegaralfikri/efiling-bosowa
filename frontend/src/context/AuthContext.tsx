@@ -6,6 +6,7 @@ type Role = 'ADMIN' | 'MANAJEMEN' | 'USER';
 type UnitBisnis = 'BOSOWA_TAXI' | 'OTORENTAL_NUSANTARA' | 'OTO_GARAGE_INDONESIA' | 'MALLOMO' | 'LAGALIGO_LOGISTIK' | 'PORT_MANAGEMENT';
 
 interface User {
+  id: string;
   username: string;
   role: Role;
   unitBisnis?: UnitBisnis | null;

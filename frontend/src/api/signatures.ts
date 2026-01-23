@@ -69,6 +69,9 @@ export const signDocument = (
 export const rejectSignatureRequest = (requestId: string, notes?: string) =>
   api.put<SignatureRequest>(`/signature-requests/${requestId}/reject`, { notes }).then((res) => res.data);
 
+export const cancelSignatureRequest = (requestId: string) =>
+  api.delete(`/signature-requests/${requestId}`);
+
 // Notifications API
 export const getNotifications = () =>
   api.get<Notification[]>('/notifications').then((res) => res.data);
