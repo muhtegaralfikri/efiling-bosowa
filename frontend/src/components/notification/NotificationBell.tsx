@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, Check, FileSignature, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '../../api/signatures';
+import { wsService } from '../../services/websocket.service';
+import { toast } from 'sonner';
 
 export default function NotificationBell() {
   const navigate = useNavigate();
@@ -38,6 +40,50 @@ export default function NotificationBell() {
     },
   });
 
+  // Listen for WebSocket notifications
+  useEffect(() => {
+    const handleNotification = (notification: any) => {
+      // Invalidate queries to fetch latest notifications
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-count'] });
+
+      // Show toast notification
+      toast(notification.title || 'Notifikasi Baru', {
+        description: notification.message || '',
+        duration: 5000,
+      });
+    };
+
+    const handleSignatureRequest = (_request: any) => {
+      // Refresh pending signatures if on that page
+      queryClient.invalidateQueries({ queryKey: ['signature-requests'] });
+    };
+
+    const handleSignatureStatus = (_data: any) => {
+      // Refresh signature requests when status changes
+      queryClient.invalidateQueries({ queryKey: ['signature-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['letters'] });
+    };
+
+    const handleDocumentUpdate = (_document: any) => {
+      // Refresh letters when document is updated
+      queryClient.invalidateQueries({ queryKey: ['letters'] });
+    };
+
+    // Subscribe to WebSocket events
+    wsService.on('notification', handleNotification);
+    wsService.on('signature:request', handleSignatureRequest);
+    wsService.on('signature:status', handleSignatureStatus);
+    wsService.on('document:update', handleDocumentUpdate);
+
+    return () => {
+      wsService.off('notification', handleNotification);
+      wsService.off('signature:request', handleSignatureRequest);
+      wsService.off('signature:status', handleSignatureStatus);
+      wsService.off('document:update', handleDocumentUpdate);
+    };
+  }, [queryClient]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -54,7 +100,7 @@ export default function NotificationBell() {
 
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('scroll', handleScroll);

@@ -3,6 +3,7 @@ import { Navigate, Outlet, Route, BrowserRouter, Routes } from 'react-router-dom
 import './App.css';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { WebSocketProvider } from './context/websocket.context';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const UploadPage = lazy(() => import('./pages/UploadPage'));
@@ -50,9 +51,10 @@ function AppShell() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+      <WebSocketProvider>
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route element={<AppShell />}>
               <Route path="/" element={<Navigate to="/upload" replace />} />
@@ -141,6 +143,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      </WebSocketProvider>
     </AuthProvider>
   );
 }

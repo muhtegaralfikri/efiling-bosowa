@@ -18,6 +18,7 @@ import { NotificationType } from '../notifications/notification.entity';
 import { SignaturesService } from '../signatures/signatures.service';
 import { Letter } from '../letters/letter.entity';
 import { User } from '../users/user.entity';
+import { WebSocketGateway } from '../websocket/websocket.gateway';
 import * as fs from 'fs';
 import * as fsp from 'fs/promises';
 import * as path from 'path';
@@ -38,6 +39,7 @@ export class SignatureRequestsService {
     private readonly userRepo: Repository<User>,
     private readonly notificationsService: NotificationsService,
     private readonly signaturesService: SignaturesService,
+    private readonly webSocketGateway: WebSocketGateway,
   ) {}
 
   private assertCanAccessLetter(
@@ -237,6 +239,9 @@ export class SignatureRequestsService {
             `Anda diminta menandatangani dokumen "${letter.letterNumber}"`,
             saved.id,
           );
+
+          // Broadcast signature request via WebSocket
+          this.webSocketGateway.broadcastSignatureRequest(withRelations);
         } catch (err) {
           this.logger.error('Failed to create notification', err);
         }
@@ -297,6 +302,12 @@ export class SignatureRequestsService {
       'Dokumen Ditandatangani',
       `Dokumen "${request.letter.letterNumber}" telah ditandatangani`,
       saved.id,
+    );
+
+    // Broadcast signature status via WebSocket
+    this.webSocketGateway.broadcastSignatureStatus(
+      parseInt(saved.id),
+      SignatureRequestStatus.SIGNED,
     );
 
     return saved;

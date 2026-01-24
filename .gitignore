@@ -1,2 +1,26 @@
 # Documentation
 docs/
+
+# Environment variables
+backend/.env
+frontend/.env
+
+# Dependencies
+node_modules/
+
+# Build outputs
+backend/dist/
+frontend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?

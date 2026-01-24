@@ -4,6 +4,7 @@ import { FilesModule } from '../files/files.module';
 import { EditLogsModule } from '../edit-logs/edit-logs.module';
 import { OcrModule } from '../ocr/ocr.module';
 import { SignatureRequestsModule } from '../signature-requests/signature-requests.module';
+import { WebSocketModule } from '../websocket/websocket.module';
 import { LettersController } from './letters.controller';
 import { LettersService } from './letters.service';
 import { Letter } from './letter.entity';
@@ -17,6 +18,7 @@ import { OcrPreviewCacheService } from './ocr-preview-cache.service';
     FilesModule,
     EditLogsModule,
     forwardRef(() => SignatureRequestsModule),
+    WebSocketModule,
   ],
   controllers: [LettersController],
   providers: [LettersService, OcrPreviewQueueService, OcrPreviewCacheService],
