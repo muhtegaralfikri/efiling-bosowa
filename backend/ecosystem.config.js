@@ -8,7 +8,7 @@ module.exports = {
       instances: 1,
       exec_mode: 'fork',
       watch: false,
-      max_memory_restart: '512M',
+      max_memory_restart: '900M',
     },
   ],
 };
