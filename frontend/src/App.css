@@ -1820,6 +1820,10 @@ button.mobile-menu-link {
   background: #f04438;
 }
 
+.table .actions button.success {
+  background: #16a34a;
+}
+
 .table .actions button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
