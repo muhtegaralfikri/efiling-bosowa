@@ -5,9 +5,10 @@ import { DeleteRequestsService } from './delete-requests.service';
 import { DeleteRequest } from './delete-request.entity';
 import { Letter } from '../letters/letter.entity';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DeleteRequest, Letter])],
+  imports: [TypeOrmModule.forFeature([DeleteRequest, Letter]), WebSocketModule],
   controllers: [DeleteRequestsController],
   providers: [DeleteRequestsService, RolesGuard],
   exports: [DeleteRequestsService],
