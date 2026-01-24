@@ -199,9 +199,7 @@ export default function LettersListPage() {
           >
             {showAdvanced ? 'Sembunyikan Filter' : 'Filter Lanjutan'}
           </button>
-          <Link to="/letters/new" className="primary-btn">
-            Tambah Dokumen
-          </Link>
+
         </div>
       </div>
       

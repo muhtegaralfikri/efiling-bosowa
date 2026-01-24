@@ -465,9 +465,6 @@ export class LettersService {
     const merged = this.lettersRepo.merge(existing, dto, { fileUrl });
     const saved = await this.lettersRepo.save(merged);
 
-    // Broadcast document update via WebSocket
-    this.webSocketGateway.broadcastDocumentUpdate(saved);
-
     if (updatedBy) {
       const changes = Object.entries(dto).filter(([field, newValue]) => {
         const oldValue = (before as Record<string, unknown>)[field];
@@ -490,6 +487,10 @@ export class LettersService {
         ),
       );
     }
+
+    // Broadcast document update via WebSocket AFTER logs are saved
+    this.webSocketGateway.broadcastDocumentUpdate(saved);
+
 
     return saved;
   }
