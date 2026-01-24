@@ -40,11 +40,17 @@ async function bootstrap() {
   app.use(compression());
 
   // CORS Configuration
-  const allowedOrigins = process.env.FRONTEND_URL
+  let allowedOrigins = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',').map((url) => url.trim())
-    : isProduction
-      ? [] // No fallback in production - FRONTEND_URL must be set
-      : ['http://localhost:5173', 'http://localhost:4173'];
+    : [];
+
+  if (!isProduction) {
+    allowedOrigins = [
+      ...allowedOrigins,
+      'http://localhost:5173',
+      'http://localhost:4173',
+    ];
+  }
 
   if (isProduction && allowedOrigins.length === 0) {
     logger.warn(

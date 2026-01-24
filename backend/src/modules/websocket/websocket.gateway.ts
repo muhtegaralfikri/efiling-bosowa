@@ -20,7 +20,7 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   @WebSocketServer()
   server: Server;
 
-  private connectedUsers: Map<number, Socket> = new Map();
+  private connectedUsers: Map<string | number, Socket> = new Map();
 
   handleConnection(client: Socket) {
     const userId = this.getUserIdFromSocket(client);
@@ -41,23 +41,27 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   @SubscribeMessage('join')
-  handleJoin(@ConnectedSocket() client: Socket, @MessageBody() data: { userId: number }) {
+  handleJoin(@ConnectedSocket() client: Socket, @MessageBody() data: { userId: string | number }) {
     client.join(`user:${data.userId}`);
     this.connectedUsers.set(data.userId, client);
   }
 
   @SubscribeMessage('leave')
-  handleLeave(@ConnectedSocket() client: Socket, @MessageBody() data: { userId: number }) {
+  handleLeave(@ConnectedSocket() client: Socket, @MessageBody() data: { userId: string | number }) {
     client.leave(`user:${data.userId}`);
     this.connectedUsers.delete(data.userId);
   }
 
-  private getUserIdFromSocket(client: Socket): number | null {
+  private getUserIdFromSocket(client: Socket): number | string | null {
     const userId = client.handshake.query.userId;
+    // Return as string if it looks like UUID, otherwise try parse int (backward compatibility)
+    if (userId && typeof userId === 'string' && userId.length > 10) {
+      return userId;
+    }
     return userId ? parseInt(userId as string) : null;
   }
 
-  sendNotificationToUser(userId: number, notification: any) {
+  sendNotificationToUser(userId: number | string, notification: any) {
     this.server.to(`user:${userId}`).emit('notification', notification);
   }
 
