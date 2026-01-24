@@ -46,7 +46,7 @@ export class NotificationsService {
 
     // Send real-time notification via WebSocket
     this.webSocketGateway.sendNotificationToUser(
-      parseInt(userId),
+      userId,
       saved,
     );
 

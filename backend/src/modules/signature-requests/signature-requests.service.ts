@@ -242,6 +242,24 @@ export class SignatureRequestsService {
 
           // Broadcast signature request via WebSocket
           this.webSocketGateway.broadcastSignatureRequest(withRelations);
+
+          // Send targeted notification to user
+          this.webSocketGateway.sendNotificationToUser(assignment.assignedTo, {
+            type: NotificationType.SIGNATURE_REQUEST,
+            title: 'Permintaan Tanda Tangan',
+            message: `Anda diminta menandatangani dokumen "${letter.letterNumber}"`,
+            referenceId: saved.id,
+            createdAt: new Date(),
+          });
+
+          // Send targeted notification to user
+          this.webSocketGateway.sendNotificationToUser(assignment.assignedTo, {
+            type: NotificationType.SIGNATURE_REQUEST,
+            title: 'Permintaan Tanda Tangan',
+            message: `Anda diminta menandatangani dokumen "${letter.letterNumber}"`,
+            referenceId: saved.id,
+            createdAt: new Date(),
+          });
         } catch (err) {
           this.logger.error('Failed to create notification', err);
         }
@@ -364,6 +382,12 @@ export class SignatureRequestsService {
       saved.id,
     );
 
+    // Broadcast status change
+    this.webSocketGateway.broadcastSignatureStatus(
+      parseInt(saved.id),
+      SignatureRequestStatus.REJECTED,
+    );
+
     return saved;
   }
 
@@ -379,6 +403,12 @@ export class SignatureRequestsService {
     }
 
     await this.requestRepo.delete(id);
+
+    // Broadcast cancellation so it disappears from lists
+    this.webSocketGateway.broadcastSignatureStatus(
+      parseInt(id),
+      'CANCELLED',
+    );
   }
 
   private async embedSignature(

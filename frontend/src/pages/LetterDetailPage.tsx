@@ -640,7 +640,7 @@ export default function LetterDetailPage() {
                                   </span>
                                   {user && (req.requestedBy === (user.id || getUserIdFromToken(user.token))) && (
                                     <button 
-                                      className="cancel-req-btn"
+                                      className="cancel-req-btn-premium"
                                       onClick={() => {
                                         if (confirm('Batalkan permintaan tanda tangan ini?')) {
                                           cancelMutation.mutate(req.id);
@@ -799,6 +799,37 @@ export default function LetterDetailPage() {
           background: linear-gradient(to right, var(--bg-secondary), var(--bg-primary));
           border-bottom: 1px solid var(--border-color);
         }
+
+        /* Premium Cancel Button */
+        .cancel-req-btn-premium {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.4rem 0.8rem;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          border-radius: 8px;
+          color: #ef4444;
+          font-family: 'Sora', sans-serif;
+          font-size: 0.75rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          letter-spacing: 0.02em;
+        }
+
+        .cancel-req-btn-premium:hover {
+          background: #ef4444;
+          color: white;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+          border-color: #ef4444;
+        }
+
+        .cancel-req-btn-premium:active {
+          transform: translateY(0);
+        }
+
 
         .group-info {
           display: flex;

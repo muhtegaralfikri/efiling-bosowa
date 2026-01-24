@@ -243,6 +243,7 @@ export default function SignatureSettingsPage() {
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s;
+          font-family: 'Sora', sans-serif;
         }
         .tab-btn:hover {
           color: var(--text-primary);

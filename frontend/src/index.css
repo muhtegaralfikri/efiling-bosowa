@@ -25,3 +25,36 @@ body {
 a {
   color: inherit;
 }
+/* Toast Customization */
+[data-sonner-toaster] {
+  font-family: 'Sora', sans-serif !important;
+}
+
+[data-sonner-toast] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15) !important;
+  padding: 16px !important;
+  gap: 12px !important;
+}
+
+[data-theme='dark'] [data-sonner-toast] {
+  background: rgba(30, 30, 35, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 0.875rem !important;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}

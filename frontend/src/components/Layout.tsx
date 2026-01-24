@@ -19,6 +19,7 @@ import logo from '../assets/bosowa-agensi.webp';
 import { useAuth } from '../context/AuthContext';
 import OfflineIndicator from './OfflineIndicator';
 import NotificationBell from './notification/NotificationBell';
+import NotificationListener from './notification/NotificationListener';
 
 const THEME_KEY = 'bosowa-ocr-theme';
 
@@ -223,6 +224,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       )}
 
       <OfflineIndicator />
+      <NotificationListener />
     </div>
   );
 }

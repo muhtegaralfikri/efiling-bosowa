@@ -352,6 +352,15 @@ export default function PendingSignaturesPage() {
           padding: 3rem;
           color: var(--text-secondary);
           gap: 1rem;
+          text-align: center;
+        }
+        
+        .empty-state p {
+          font-size: 1.125rem;
+          color: var(--text-secondary);
+          max-width: 500px;
+          line-height: 1.6;
+          margin: 0;
         }
         .pending-list {
           display: flex;
@@ -403,6 +412,7 @@ export default function PendingSignaturesPage() {
           gap: 0.5rem;
           padding: 0.75rem 1.25rem;
           border-radius: 10px;
+          font-family: 'Sora', sans-serif;
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
