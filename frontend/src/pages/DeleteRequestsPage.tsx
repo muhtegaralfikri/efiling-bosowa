@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -16,17 +16,47 @@ interface DeleteRequest {
   createdAt?: string;
 }
 
+interface DeleteRequestsResponse {
+  data: DeleteRequest[];
+  meta: {
+    page: number;
+    take: number;
+    itemCount: number;
+    pageCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+const PAGE_SIZE = 10;
+
 export default function DeleteRequestsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [letterNumber, setLetterNumber] = useState('');
   const [reason, setReason] = useState('');
   const [requests, setRequests] = useState<DeleteRequest[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const canModerate = user?.role === 'ADMIN';
-  const actionHeader = canModerate ? 'Aksi' : 'Keterangan';
 
   const load = () => {
-    api.get('/delete-requests').then((res) => setRequests(res.data));
+    setIsLoading(true);
+    api
+      .get<DeleteRequestsResponse>('/delete-requests', {
+        params: { page, limit: PAGE_SIZE },
+      })
+      .then((res) => {
+        setRequests(res.data.data);
+        setTotalPages(Math.max(res.data.meta.pageCount, 1));
+      })
+      .catch(() => {
+        toast.error('Gagal memuat requests');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const getErrorMessage = (error: unknown) => {
@@ -42,7 +72,7 @@ export default function DeleteRequestsPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [page]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -54,6 +84,7 @@ export default function DeleteRequestsPage() {
       toast.success('Request penghapusan dikirim');
       setLetterNumber('');
       setReason('');
+      setPage(1); // Reset to first page to see the new request
       load();
     } catch (error: unknown) {
       toast.error(getErrorMessage(error) || 'Gagal mengirim request');
@@ -81,6 +112,10 @@ export default function DeleteRequestsPage() {
       .catch((err: unknown) => {
         toast.error(getErrorMessage(err) || 'Gagal menolak');
       });
+
+  const goToPrev = () => setPage((prev) => Math.max(prev - 1, 1));
+  const goToNext = () =>
+    setPage((prev) => Math.min(prev + 1, totalPages));
 
   return (
     <section className="panel">
@@ -124,18 +159,17 @@ export default function DeleteRequestsPage() {
         </h3>
         
         <div className="table-container">
-          <div className="table cols-5">
+          <div className="table cols-4">
             <div
               className="table-row table-head"
-              style={{ gridTemplateColumns: '1.2fr 2fr 2fr 1.2fr 1.6fr' }}
+              style={{ gridTemplateColumns: '0.8fr 2.5fr 1.5fr 1.2fr' }}
             >
               <span>ID</span>
               <span>Nomor Dokumen</span>
               <span>Alasan</span>
-              <span>Status</span>
-              <span>{actionHeader}</span>
+              <span>{canModerate ? 'Aksi' : 'Status'}</span>
             </div>
-            {requests.length === 0 && (
+            {requests.length === 0 && !isLoading && (
               <div className="table-row" style={{ gridTemplateColumns: '1fr' }}>
                 <span style={{ textAlign: 'center', color: '#888' }}>Belum ada request</span>
               </div>
@@ -144,7 +178,7 @@ export default function DeleteRequestsPage() {
               <div
                 key={req.id}
                 className="table-row"
-                style={{ gridTemplateColumns: '1.2fr 2fr 2fr 1.2fr 1.6fr' }}
+                style={{ gridTemplateColumns: '0.8fr 2.5fr 1.5fr 1.2fr' }}
               >
                 <span
                   style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
@@ -154,40 +188,62 @@ export default function DeleteRequestsPage() {
                 </span>
                 <span>{req.letter?.letterNumber || req.letterId}</span>
                 <span className="cell-muted">{req.reason || '-'}</span>
-                <span>
-                  <span className={`pill pill-${req.status.toLowerCase()}`}>{req.status}</span>
-                </span>
-                {canModerate ? (
+                
+                {/* Merged Status/Action Column */}
+                {canModerate && req.status === 'PENDING' ? (
                   <span className="actions table-actions">
                     <button
                       type="button"
                       className="icon-btn success"
                       onClick={() => approve(req.id)}
-                      disabled={req.status !== 'PENDING'}
                       title="Setujui"
                     >
-                      <Check size={16} />
+                      <Check size={18} />
                     </button>
                     <button
                       type="button"
                       className="icon-btn danger"
                       onClick={() => reject(req.id)}
-                      disabled={req.status !== 'PENDING'}
                       title="Tolak"
                     >
-                      <X size={16} />
+                      <X size={18} />
                     </button>
                   </span>
                 ) : (
-                  <span className="cell-muted">
-                    {req.status === 'PENDING' && 'Menunggu konfirmasi admin'}
-                    {req.status === 'APPROVED' && 'Sudah disetujui admin'}
-                    {req.status === 'REJECTED' && 'Ditolak admin'}
+                  <span>
+                    <span className={`pill pill-${req.status.toLowerCase()}`}>
+                       {req.status === 'PENDING' ? 'Menunggu' : 
+                        req.status === 'APPROVED' ? 'Disetujui' : 
+                        req.status === 'REJECTED' ? 'Ditolak' : req.status}
+                    </span>
                   </span>
                 )}
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="actions pagination-actions" style={{ marginTop: '1rem', gap: '0.75rem' }}>
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={goToPrev}
+            disabled={page <= 1}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span>
+            {page} / {totalPages} {isLoading && '(memuat...)'}
+          </span>
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={goToNext}
+            disabled={page >= totalPages}
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
     </section>

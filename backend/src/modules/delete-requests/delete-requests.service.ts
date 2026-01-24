@@ -66,9 +66,9 @@ export class DeleteRequestsService {
     return this.deleteRequestsRepo.save(request);
   }
 
-  findAll(status?: DeleteRequestStatus) {
+  async findAll(status?: DeleteRequestStatus, page: number = 1, limit: number = 10) {
     // Optimized query with specific columns
-    return this.deleteRequestsRepo
+    const [data, total] = await this.deleteRequestsRepo
       .createQueryBuilder('req')
       .select([
         'req.id',
@@ -81,7 +81,21 @@ export class DeleteRequestsService {
       .leftJoin('req.letter', 'letter')
       .where(status ? { status } : {})
       .orderBy('req.createdAt', 'DESC')
-      .getMany();
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        page,
+        take: limit,
+        itemCount: total,
+        pageCount: Math.ceil(total / limit),
+        hasPreviousPage: page > 1,
+        hasNextPage: page < Math.ceil(total / limit),
+      },
+    };
   }
 
   async updateStatus(id: string, dto: UpdateDeleteRequestDto) {
