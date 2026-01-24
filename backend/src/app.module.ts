@@ -16,6 +16,7 @@ import { UsersModule } from './modules/users/users.module';
 import { SignaturesModule } from './modules/signatures/signatures.module';
 import { SignatureRequestsModule } from './modules/signature-requests/signature-requests.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { WebSocketModule } from './modules/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     SignaturesModule,
     SignatureRequestsModule,
     NotificationsModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -12,6 +12,7 @@ import { DeleteRequest, DeleteRequestStatus } from './delete-request.entity';
 import { Letter } from '../letters/letter.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UnitBisnis } from '../../common/enums/unit-bisnis.enum';
+import { WebSocketGateway } from '../websocket/websocket.gateway';
 
 interface AuthenticatedUser {
   userId: string;
@@ -26,6 +27,7 @@ export class DeleteRequestsService {
     private readonly deleteRequestsRepo: Repository<DeleteRequest>,
     @InjectRepository(Letter)
     private readonly lettersRepo: Repository<Letter>,
+    private readonly webSocketGateway: WebSocketGateway,
   ) {}
 
   async create(dto: CreateDeleteRequestDto, user: AuthenticatedUser) {
@@ -91,6 +93,8 @@ export class DeleteRequestsService {
       // letterId can be null if the letter was already removed
       if (request.letterId) {
         await this.lettersRepo.delete(request.letterId);
+        // Broadcast update so clients can refresh their lists
+        this.webSocketGateway.broadcastDocumentUpdate({ id: request.letterId });
       }
     }
 

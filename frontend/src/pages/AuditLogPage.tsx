@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../api/client';
+import { wsService } from '../services/websocket.service';
 
 interface EditLog {
   id: string;
@@ -47,6 +48,22 @@ export default function AuditLogPage() {
       }
     },
   });
+
+  const queryClient = useQueryClient();
+
+  // Listen for WebSocket document updates
+  useEffect(() => {
+    const handleDocumentUpdate = () => {
+      // Refresh audit logs list when a document is created or updated
+      queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+    };
+
+    wsService.on('document:update', handleDocumentUpdate);
+
+    return () => {
+      wsService.off('document:update', handleDocumentUpdate);
+    };
+  }, [queryClient]);
 
   const logs = data?.data ?? [];
   const totalPages = data?.meta.pageCount ?? 1;

@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../api/client';
+import { wsService } from '../services/websocket.service';
 import { AlertCircle, HardDrive, TrendingUp } from 'lucide-react';
 
 interface StatsResponse {
@@ -23,11 +25,27 @@ interface StatsResponse {
 }
 
 export default function StatsPage() {
-  const [stats, setStats] = useState<StatsResponse | null>(null);
+  const queryClient = useQueryClient();
+  const { data: stats } = useQuery<StatsResponse>({
+    queryKey: ['stats'],
+    queryFn: async () => {
+      const res = await api.get('/stats');
+      return res.data;
+    },
+  });
 
+  // Listen for WebSocket document updates
   useEffect(() => {
-    api.get('/stats').then((res) => setStats(res.data));
-  }, []);
+    const handleDocumentUpdate = () => {
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+    };
+
+    wsService.on('document:update', handleDocumentUpdate);
+
+    return () => {
+      wsService.off('document:update', handleDocumentUpdate);
+    };
+  }, [queryClient]);
 
   // Helper untuk menghitung max value agar chart bar proporsional
   const getMaxLetters = () => {

@@ -21,6 +21,7 @@ import { OcrPreviewDto } from './dto/ocr-preview.dto';
 import { UpdateLetterDto } from './dto/update-letter.dto';
 import { Letter } from './letter.entity';
 import { OcrPreviewCacheService } from './ocr-preview-cache.service';
+import { WebSocketGateway } from '../websocket/websocket.gateway';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -40,6 +41,7 @@ export class LettersService {
     private readonly editLogsService: EditLogsService,
     private readonly aiExtractionService: AiExtractionService,
     private readonly ocrPreviewCache: OcrPreviewCacheService,
+    private readonly webSocketGateway: WebSocketGateway,
     @InjectRepository(Letter)
     private readonly lettersRepo: Repository<Letter>,
   ) {}
@@ -280,7 +282,12 @@ export class LettersService {
       fileUrl: meta?.urlFull,
     });
 
-    return this.lettersRepo.save(letter);
+    const saved = await this.lettersRepo.save(letter);
+
+    // Broadcast document update via WebSocket
+    this.webSocketGateway.broadcastDocumentUpdate(saved);
+
+    return saved;
   }
 
   async findAll(
@@ -480,6 +487,10 @@ export class LettersService {
         ),
       );
     }
+
+    // Broadcast document update via WebSocket AFTER logs are saved
+    this.webSocketGateway.broadcastDocumentUpdate(saved);
+
 
     return saved;
   }

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import api from '../api/client';
 import type { Letter, PaginatedResponse } from '../api/types';
 import { useAuth } from '../context/AuthContext';
+import { wsService } from '../services/websocket.service';
 
 const PAGE_SIZE = 10;
 
@@ -24,7 +25,8 @@ type Column = typeof allColumns[number];
 
 export default function LettersListPage() {
   const { user } = useAuth();
-  
+  const queryClient = useQueryClient();
+
   // Filter columns based on user role
   const columns = useMemo(() => {
     if (user?.role === 'ADMIN' || user?.role === 'MANAJEMEN') {
@@ -69,6 +71,20 @@ export default function LettersListPage() {
 
     return () => window.clearTimeout(handle);
   }, [searchInput]);
+
+  // Listen for WebSocket document updates
+  useEffect(() => {
+    const handleDocumentUpdate = (_document: Letter) => {
+      // Refresh letters list when a document is created or updated
+      queryClient.invalidateQueries({ queryKey: ['letters'] });
+    };
+
+    wsService.on('document:update', handleDocumentUpdate);
+
+    return () => {
+      wsService.off('document:update', handleDocumentUpdate);
+    };
+  }, [queryClient]);
 
   const getCellValue = (
     letter: Letter,
@@ -183,9 +199,7 @@ export default function LettersListPage() {
           >
             {showAdvanced ? 'Sembunyikan Filter' : 'Filter Lanjutan'}
           </button>
-          <Link to="/letters/new" className="primary-btn">
-            Tambah Dokumen
-          </Link>
+
         </div>
       </div>
       
