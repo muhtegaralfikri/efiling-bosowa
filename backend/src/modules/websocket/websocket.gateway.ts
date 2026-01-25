@@ -27,7 +27,7 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     if (userId) {
       this.connectedUsers.set(userId, client);
       client.join(`user:${userId}`);
-      console.log(`User ${userId} connected: ${client.id}`);
+
     }
   }
 
@@ -36,7 +36,7 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     if (userId) {
       this.connectedUsers.delete(userId);
       client.leave(`user:${userId}`);
-      console.log(`User ${userId} disconnected: ${client.id}`);
+
     }
   }
 

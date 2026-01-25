@@ -17,11 +17,11 @@ class WebSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected:', this.socket?.id);
+      // Connection established
     });
 
     this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+      // Connection closed
     });
 
     this.socket.on('notification', (data) => {

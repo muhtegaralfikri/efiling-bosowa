@@ -10,8 +10,6 @@ export default function NotificationListener() {
 
   useEffect(() => {
     const handleNotification = (notification: any) => {
-      // DEBUG: Log incoming notification to console
-      console.log('Incoming WebSocket Notification:', notification);
 
       // Deduplicate: Prefer ID. If no ID, use Type + RefID. 
       // Strip timestamp from key if it varies slightly between duplicate emissions
@@ -19,7 +17,7 @@ export default function NotificationListener() {
         ? `id-${notification.id}` 
         : `ref-${notification.type}-${notification.referenceId}`;
 
-      console.log('Dedup Key:', dedupKey, 'Seen?', processedIds.has(dedupKey));
+
 
       if (processedIds.has(dedupKey)) {
         return; // Ignore duplicate
