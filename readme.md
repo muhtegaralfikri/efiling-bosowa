@@ -116,7 +116,7 @@ Sistem menggunakan WebSocket untuk notifikasi real-time:
 - Menggunakan Socket.io 4.8.3
 - Terintegrasi dengan Redis untuk multi-instance support
 - Notifikasi muncul sebagai toast dengan Sonner library di frontend
-- Koneksi otomatis reconnect jika putus
+- Koneksi otomatis reconnect jika putus.
 
 ---
 
