@@ -24,8 +24,8 @@ Bosowa OCR adalah aplikasi web yang memungkinkan perusahaan untuk:
 1. **Upload Dokumen** - Unggah surat/invoice dalam format PDF atau gambar
 2. **Ekstraksi Otomatis** - Sistem membaca dan mengambil data dari dokumen secara otomatis
 3. **Simpan & Kelola** - Semua dokumen tersimpan secara digital dan terorganisir
-4. **Tanda Tangan Digital** - Proses approval dan tanda tangan tanpa kertas
-5. **Pencarian Cepat** - Temukan dokumen apa saja dalam hitungan detik
+4. **Tanda Tangan Digital** - Proses approval dan tanda tangan tanpa kertas.
+5. **Pencarian Cepat** - Temukan dokumen apa saja dalam hitungan detik.
 
 ### Mengapa Dibutuhkan?
 
